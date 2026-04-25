@@ -1,0 +1,184 @@
+<div class="container" style="padding-top: var(--spacing-xl);">
+    <h1 class="section-title">电路拓扑设计</h1>
+    <p class="section-subtitle">选择flyback拓扑类型，输入设计参数，自动计算关键器件参数</p>
+
+    <div class="topology-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第一步：选择电路拓扑</h3>
+        <select id="topology-select" class="form-select" style="max-width: 400px;">
+            <option value="buck">Buck 降压电路</option>
+            <option value="boost">Boost 升压电路</option>
+            <option value="buckboost">Buck-Boost 升降压电路</option>
+            <option value="flyback" selected>反激电路</option>
+            <option value="llc">LLC 谐振电路</option>
+        </select>
+    </div>
+
+    <div class="mode-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第二步：选择工作模式</h3>
+        <select id="flyback-mode-select" class="form-select" style="max-width: 400px;">
+            <option value="ccm">连续导通模式 (CCM)</option>
+            <option value="dcm" selected>断续导通模式 (DCM)</option>
+        </select>
+    </div>
+
+    <div id="topology-content">
+        <div id="schematic-section" class="schematic-container" style="display: none;">
+            <h3 class="schematic-title">反激电路经典拓扑结构 (DCM模式)</h3>
+            <div class="schematic-image" style="display: flex; justify-content: center; align-items: center;">
+                <img id="topology-image" src="" alt="反激拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">
+            </div>
+        </div>
+
+        <div id="params-section" class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); display: none;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-lg);">第三步：输入设计参数</h3>
+            <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label">最小输入电压 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin-min" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大输入电压 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin-max" class="form-input" placeholder="如: 375" step="1" value="375">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vout" class="form-input" placeholder="如: 12" step="0.1" value="12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压纹波 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vripple" class="form-input" placeholder="如: 0.12" step="0.01" value="0.12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大输出电流 <span class="form-unit">(A)</span></label>
+                    <input type="number" id="param-iout-max" class="form-input" placeholder="如: 2" step="0.1" value="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">满载效率 <span class="form-unit">(%)</span></label>
+                    <input type="number" id="param-efficiency" class="form-input" placeholder="如: 85" step="0.1" value="85">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">开关频率 <span class="form-unit">(kHz)</span></label>
+                    <input type="number" id="param-fsw" class="form-input" placeholder="如: 65" step="1" value="65">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MOS 额定电压 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vds" class="form-input" placeholder="如: 600" step="1" value="600">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MOS 电压降额 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vds-derate" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大磁密 <span class="form-unit">(Gs)</span></label>
+                    <input type="number" id="param-bm" class="form-input" placeholder="如: 2000" step="1" value="2000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">绕组电流密度 <span class="form-unit">(A/mm²)</span></label>
+                    <input type="number" id="param-j" class="form-input" placeholder="如: 4" step="0.1" value="4">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">铁芯窗口系数</label>
+                    <input type="number" id="param-k" class="form-input" placeholder="如: 0.4" step="0.01" value="0.4">
+                </div>
+            </div>
+
+            <button onclick="FlybackDCM.calculate()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-xl); padding: var(--spacing-md) var(--spacing-xl); font-size: 1.125rem;">
+                一键设计
+            </button>
+        </div>
+
+        <div id="results-section" style="display: none;">
+            <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 设计计算结果</h3>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">基础计算</h4>
+                    <div class="result-item">
+                        <span class="result-label">最大输出功率 Pomax</span>
+                        <span class="result-value"><span id="result-pomax">-</span><span class="result-unit">W</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">最小负载电阻 Rmin</span>
+                        <span class="result-value"><span id="result-rmin">-</span><span class="result-unit">Ω</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">变压器设计（AP法）</h4>
+                    <div class="result-item">
+                        <span class="result-label">匝比 Np:Ns</span>
+                        <span class="result-value"><span id="result-turns-ratio">-</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">最大占空比 Dmax</span>
+                        <span class="result-value"><span id="result-dmax">-</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">面积积 Wa·Ac</span>
+                        <span class="result-value"><span id="result-ap">-</span><span class="result-unit">cm⁴</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">铁芯截面积 Ac</span>
+                        <span class="result-value"><span id="result-ac">-</span><span class="result-unit">cm²</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">窗口面积 Wa</span>
+                        <span class="result-value"><span id="result-wa">-</span><span class="result-unit">cm²</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">副边匝数 Ns</span>
+                        <span class="result-value"><span id="result-ns">-</span><span class="result-unit">T</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">原边匝数 Np</span>
+                        <span class="result-value"><span id="result-np">-</span><span class="result-unit">T</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">激磁电感 Lm</span>
+                        <span class="result-value"><span id="result-lm">-</span><span class="result-unit">μH</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">气隙 lg</span>
+                        <span class="result-value"><span id="result-lg">-</span><span class="result-unit">cm</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">原副边绕组有效值电流</h4>
+                    <div class="result-item">
+                        <span class="result-label">原边有效值电流 Ipri(rms)</span>
+                        <span class="result-value"><span id="result-ipri-rms">-</span><span class="result-unit">A</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">副边有效值电流 Isec(rms)</span>
+                        <span class="result-value"><span id="result-isec-rms">-</span><span class="result-unit">A</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">MOSFET 与二极管</h4>
+                    <div class="result-item">
+                        <span class="result-label">MOS 电压应力 Vds</span>
+                        <span class="result-value"><span id="result-vds">-</span><span class="result-unit">V</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">二极管反向电压 Vd(max)</span>
+                        <span class="result-value"><span id="result-vd-max">-</span><span class="result-unit">V</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">输出滤波电容</h4>
+                    <div class="result-item">
+                        <span class="result-label">最大允许 ESR Rc_max</span>
+                        <span class="result-value"><span id="result-rc-max">-</span><span class="result-unit">Ω</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">最小电容量 Cmin</span>
+                        <span class="result-value"><span id="result-cmin">-</span><span class="result-unit">μF</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

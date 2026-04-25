@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Path Test</title>
+</head>
+<body>
+    <h1>Path Test</h1>
+    <button onclick="testPaths()">Test Paths</button>
+    <div id="results"></div>
+    
+    <script>
+        async function testPaths() {
+            const results = document.getElementById('results');
+            results.innerHTML = 'Testing paths...<br>';
+            
+            try {
+                const response = await fetch('topology/buck/buck.html');
+                if (response.ok) {
+                    results.innerHTML += '✓ topology/buck/buck.html found<br>';
+                } else {
+                    results.innerHTML += '✗ topology/buck/buck.html not found<br>';
+                }
+            } catch (e) {
+                results.innerHTML += '✗ Error loading topology/buck/buck.html: ' + e.message + '<br>';
+            }
+            
+            try {
+                const response = await fetch('js/app.js');
+                if (response.ok) {
+                    results.innerHTML += '✓ js/app.js found<br>';
+                } else {
+                    results.innerHTML += '✗ js/app.js not found<br>';
+                }
+            } catch (e) {
+                results.innerHTML += '✗ Error loading js/app.js: ' + e.message + '<br>';
+            }
+        }
+    </script>
+</body>
+</html>

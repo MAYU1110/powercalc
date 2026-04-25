@@ -1,0 +1,210 @@
+<div class="container" style="padding-top: var(--spacing-xl);">
+    <h1 class="section-title">电路拓扑设计</h1>
+    <!-- 这是flyback.html -->
+    <p class="section-subtitle">选择flyback拓扑类型，输入设计参数，自动计算关键器件参数</p>
+
+    <div class="topology-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第一步：选择电路拓扑</h3>
+        <select id="topology-select" class="form-select" style="max-width: 400px;">
+            <option value="buck">Buck 降压电路</option>
+            <option value="boost">Boost 升压电路</option>
+            <option value="buckboost">Buck-Boost 升降压电路</option>
+            <option value="flyback" selected>反激电路</option>
+            <option value="llc">LLC 谐振电路</option>
+        </select>
+    </div>
+
+    <div class="mode-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第二步：选择工作模式</h3>
+        <select id="flyback-mode-select" class="form-select" style="max-width: 400px;">
+            <option value="ccm">连续导通模式 (CCM)</option>
+            <option value="dcm">断续导通模式 (DCM)</option>
+        </select>
+    </div>
+
+    <div id="topology-content">
+        <div id="schematic-section" class="schematic-container" style="display: none;">
+            <h3 class="schematic-title">反激电路经典拓扑结构</h3>
+            <div class="schematic-image" style="display: flex; justify-content: center; align-items: center;">
+                <img id="topology-image" src="" alt="反激拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">
+            </div>
+        </div>
+
+        <div id="params-section" class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); display: none;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-lg);">第三步：输入设计参数</h3>
+            <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label">输入电压 Vin <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin" class="form-input" placeholder="如: 220" step="1" value="220">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大输入电压 <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin-max" class="form-input" placeholder="如: 264" step="1" value="264">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压 Vout <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vout" class="form-input" placeholder="如: 12" step="0.1" value="12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">额定输出功率 <span class="form-unit">(W)</span></label>
+                    <input type="number" id="param-pout" class="form-input" placeholder="如: 50" step="1" value="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">开关频率 fsw <span class="form-unit">(kHz)</span></label>
+                    <input type="number" id="param-fsw" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">目标效率 <span class="form-unit">(%)</span></label>
+                    <input type="number" id="param-efficiency" class="form-input" placeholder="如: 85" step="0.1" value="85">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">电感电流纹波系数 <span class="form-unit">(%)</span></label>
+                    <input type="number" id="param-ripple" class="form-input" placeholder="如: 30" step="1" value="30">
+                    <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值20%~40%，推荐30%</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压纹波 <span class="form-unit">(mV)</span></label>
+                    <input type="number" id="param-vripple" class="form-input" placeholder="如: 50" step="1" value="50">
+                </div>
+            </div>
+
+            <button onclick="Flyback.calculate()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-xl); padding: var(--spacing-md) var(--spacing-xl); font-size: 1.125rem;">
+                一键设计
+            </button>
+        </div>
+
+        <div id="results-section" style="display: none;">
+            <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 设计计算结果</h3>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">基础参数</h4>
+                    <div class="result-item">
+                        <span class="result-label">占空比 D</span>
+                        <span class="result-value"><span id="result-d">-</span><span class="result-unit">%</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">输入功率 Pin = Pout / η</span>
+                        <span class="result-value"><span id="result-pin">-</span><span class="result-unit">W</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">输入电流 Iin</span>
+                        <span class="result-value"><span id="result-iin">-</span><span class="result-unit">A</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">输出电流 Iout</span>
+                        <span class="result-value"><span id="result-iout">-</span><span class="result-unit">A</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">变压器设计</h4>
+                    <div style="background: var(--bg-secondary); border-radius: var(--radius-sm); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                        <p style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent-secondary);">
+                            n = (Vin_min × D) / (Vout + Vf)
+                        </p>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">变压器匝比 n</span>
+                        <span class="result-value"><span id="result-turns-ratio">-</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">初级电感 Lp</span>
+                        <span class="result-value"><span id="result-l-primary">-</span><span class="result-unit">μH</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">初级峰值电流 IL_peak</span>
+                        <span class="result-value"><span id="result-il-peak">-</span><span class="result-unit">A</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">初级 RMS 电流 IL_rms</span>
+                        <span class="result-value"><span id="result-il-rms">-</span><span class="result-unit">A</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">输出电容设计</h4>
+                    <div style="background: var(--bg-secondary); border-radius: var(--radius-sm); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                        <p style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent-secondary);">
+                            Cout ≥ Iout × (1 - D) / (fsw × ΔVout)
+                        </p>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">输出电容值 Cout</span>
+                        <span class="result-value"><span id="result-cout">-</span><span class="result-unit">μF</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">电容纹波电流 Ic_rms</span>
+                        <span class="result-value"><span id="result-ic-rms">-</span><span class="result-unit">A</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">开关管应力分析</h4>
+                    <div class="result-item">
+                        <span class="result-label">开关管电压应力 Vsw_max</span>
+                        <span class="result-value"><span id="result-vsw-max">-</span><span class="result-unit">V</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">开关管电流应力 Isw_max</span>
+                        <span class="result-value"><span id="result-isw-max">-</span><span class="result-unit">A</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">二极管反向峰值电压 Vd_max</span>
+                        <span class="result-value"><span id="result-vd-max">-</span><span class="result-unit">V</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">二极管平均电流 Id_avg</span>
+                        <span class="result-value"><span id="result-id-avg">-</span><span class="result-unit">A</span></span>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">损耗估算</h4>
+                    <div style="background: var(--bg-secondary); border-radius: var(--radius-sm); padding: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                        <p style="font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent-secondary);">
+                            P_loss = Pin - Pout ; P_total ≈ P_sw + P_trans + P_diode + P_cu
+                        </p>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">总损耗 P_loss</span>
+                        <span class="result-value"><span id="result-ploss">-</span><span class="result-unit">W</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">开关管损耗 P_sw</span>
+                        <span class="result-value"><span id="result-psw">-</span><span class="result-unit">W</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">变压器损耗 P_trans</span>
+                        <span class="result-value"><span id="result-ptransformer">-</span><span class="result-unit">W</span></span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">二极管损耗 P_diode</span>
+                        <span class="result-value"><span id="result-pdiode">-</span><span class="result-unit">W</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: var(--spacing-xl);">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">设计要点说明</h3>
+                <div style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9375rem;">
+                    <p style="margin-bottom: var(--spacing-md);">
+                        <strong style="color: var(--text-primary);">占空比 D：</strong>反激电路占空比通常设计在0.3~0.5之间，以保证变压器的磁复位。
+                    </p>
+                    <p style="margin-bottom: var(--spacing-md);">
+                        <strong style="color: var(--text-primary);">变压器设计：</strong>变压器是反激电路的核心，需要考虑匝比、初级电感、磁芯选择等因素。建议选择合适的磁芯材料和尺寸，确保磁芯不会饱和。
+                    </p>
+                    <p style="margin-bottom: var(--spacing-md);">
+                        <strong style="color: var(--text-primary);">输出电容：</strong>Cout需要选择低ESR的电解或固态电容，多电容并联可进一步降低纹波。耐压需大于1.5倍Vout。
+                    </p>
+                    <p style="margin-bottom: var(--spacing-md);">
+                        <strong style="color: var(--text-primary);">开关管应力：</strong>开关管承受最大电压为Vin_max + n×(Vout+Vf)，最大电流为IL_peak。选择器件时需留20%以上电压电流裕量。
+                    </p>
+                    <p>
+                        <strong style="color: var(--text-primary);">二极管选型：</strong>输出二极管建议选用快恢复二极管或肖特基二极管，正向压降低，反向恢复时间短。耐压需大于n×(Vout+Vf)，电流额定值大于Iout。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
