@@ -15,6 +15,7 @@ const FlybackDCM = {
         this.loadTopologyImage('flyback');
 
         if (topologySelect) {
+            topologySelect.value = 'flyback';
             topologySelect.addEventListener('change', (e) => {
                 const selectedTopology = e.target.value;
                 App.loadTopologyModule(selectedTopology);
@@ -28,24 +29,31 @@ const FlybackDCM = {
                     App.loadTopologyModule('flyback/ccm');
                 }
             });
+            modeSelect.value = 'dcm';
         }
     },
 
     loadTopologyImage(topology) {
         const titleElement = document.querySelector('.schematic-title');
         if (titleElement) {
-            titleElement.textContent = '反激电路经典拓扑结构 (DCM模式)';
+            const topologyNames = {
+                'buck': 'Buck降压电路',
+                'boost': 'Boost升压电路',
+                'buckboost': 'Buck-Boost升降压电路',
+                'flyback': '反激电路经典拓扑结构 (DCM模式)',
+                'llc': 'LLC谐振电路'
+            };
+            titleElement.textContent = topologyNames[topology] || '电路拓扑结构';
         }
 
         const imageElement = document.getElementById('topology-image');
         if (imageElement) {
-            const imagePath = `../../../image/${topology}_topology.png`;
+            const imagePath = `../../../image/flyback_topology.png`;
 
             const container = imageElement.parentElement;
             container.innerHTML = `<img id="topology-image" src="" alt="${topology}拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">`;
 
             const newImageElement = document.getElementById('topology-image');
-
             newImageElement.src = imagePath;
 
             newImageElement.onerror = function() {
@@ -100,82 +108,186 @@ const FlybackDCM = {
     },
 
     calculate() {
-        const vinMin = parseFloat(document.getElementById('param-vin-min').value);
-        const vinMax = parseFloat(document.getElementById('param-vin-max').value);
-        const vout = parseFloat(document.getElementById('param-vout').value);
-        const vripple = parseFloat(document.getElementById('param-vripple').value);
-        const ioutMax = parseFloat(document.getElementById('param-iout-max').value);
-        const efficiency = parseFloat(document.getElementById('param-efficiency').value) / 100;
-        const fsw = parseFloat(document.getElementById('param-fsw').value);
+        const vgmin = parseFloat(document.getElementById('param-vgmin').value);
+        const vgmax = parseFloat(document.getElementById('param-vgmax').value);
+        const vo = parseFloat(document.getElementById('param-vo').value);
+        const deltavo = parseFloat(document.getElementById('param-deltavo').value);
+        const iolmax = parseFloat(document.getElementById('param-iolmax').value);
+        const eta = parseFloat(document.getElementById('param-eta').value);
+        const fs = parseFloat(document.getElementById('param-fs').value);
         const vds = parseFloat(document.getElementById('param-vds').value);
-        const vdsDerate = parseFloat(document.getElementById('param-vds-derate').value);
+        const deltavds = parseFloat(document.getElementById('param-deltavds').value);
         const bm = parseFloat(document.getElementById('param-bm').value);
         const j = parseFloat(document.getElementById('param-j').value);
         const k = parseFloat(document.getElementById('param-k').value);
 
-        if (!vinMin || !vinMax || !vout || !ioutMax || !fsw || !efficiency) {
+        if (!vgmin || !vgmax || !vo || !deltavo || !iolmax || !eta || !fs || !vds || !deltavds || !bm || !j || !k) {
             alert('请填写所有必填参数');
             return;
         }
 
-        const pomax = vout * ioutMax;
-        const rmin = vout / ioutMax;
+        const p_omax = vo * iolmax;
+        const r_min = vo / iolmax;
 
-        const N = (vds - vdsDerate - vinMax) / vout;
-        const N_int = Math.round(N);
+        const n = Math.round((vds - deltavds - vgmax) / vo);
+        const d_max = 1 / (1 + eta * vgmin / (n * vo));
 
-        const dmax = 1 / (1 + efficiency * vinMin / (N_int * vout));
+        const wa_ac = (2 / Math.sqrt(3)) * (p_omax * (Math.sqrt(1 - d_max) + Math.sqrt(d_max))) / (bm * j * k * fs * eta * 1000) * Math.pow(10, 6);
+        const ac = 0.38;
+        const wa = wa_ac / ac;
+        const ns = Math.round((vo * (1 - d_max) * Math.pow(10, 8)) / (ac * bm * fs * eta * 1000));
+        const np = n * ns;
+        const lm = (Math.pow(n, 2) * Math.pow(1 - d_max, 2) / (2 * eta * fs * 1000)) * (vo / iolmax);
+        const lg = (4 * Math.PI * Math.pow(10, -9) * Math.pow(np, 2) * ac) / lm;
 
-        const Wa_Ac = (2 / Math.sqrt(3)) * (pomax * (Math.sqrt(1 - dmax) + Math.sqrt(dmax))) / (bm * j * k * fsw * 1000 * efficiency) * 1000000;
+        const ipri_rms_max = (2 / Math.sqrt(3)) * (Math.sqrt(d_max) * iolmax) / (n * (1 - d_max));
+        const isec_rms_max = (2 / Math.sqrt(3)) * iolmax / Math.sqrt(1 - d_max);
 
-        const Ac = 0.38;
-        const Wa = Wa_Ac / Ac;
+        const vds_stress = vgmax + n * vo;
+        const ids_rms_max = ipri_rms_max;
 
-        const Ns = Math.round((vout * (1 - dmax)) / (Ac * bm * fsw * efficiency) * 100000000);
-        const Np = Math.round(N_int * Ns);
+        const vd_max = vgmax / n + vo;
+        const id_avg_max = iolmax;
 
-        const Lm = (Math.pow(N_int, 2) * Math.pow(1 - dmax, 2) * vout) / (2 * efficiency * fsw * 1000 * ioutMax);
+        const rc_max = ((1 - d_max) * deltavo) / (2 * iolmax);
+        const c_min = (d_max * iolmax * Math.pow(10, 6)) / (fs * deltavo);
 
-        const lg = (4 * Math.PI * 1e-9 * Math.pow(Np, 2) * Ac * 1e-4) / (Lm * 1e-6) * 100;
+        const resultsSection = document.getElementById('results-section');
+        if (resultsSection) {
+            resultsSection.innerHTML = `
+                <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ DCM 反激变换器设计计算结果</h3>
 
-        const IpriRms = (2 / Math.sqrt(3)) * (Math.sqrt(dmax) * ioutMax) / (N_int * (1 - dmax));
-        const IsecRms = (2 / Math.sqrt(3)) * ioutMax / Math.sqrt(1 - dmax);
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、基础参数</h4>
+                        <div class="result-item">
+                            <span class="result-label">最大输出功率 Pomax:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${p_omax.toFixed(5)} W</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">最小负载电阻 Rmin:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${r_min.toFixed(5)} Ω</span>
+                        </div>
+                    </div>
 
-        const Vds = vinMax + N_int * vout;
-        const Vdmax = vinMax / N_int + vout;
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、变压器设计（AP法）</h4>
+                        <div class="result-item">
+                            <span class="result-label">匝比 Np:Ns:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${np}:${ns} = ${n}:1</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">最大占空比 Dmax:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${d_max.toFixed(5)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">面积积 Wa·Ac:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${wa_ac.toFixed(5)} cm⁴</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">铁芯截面积 Ac:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ac.toFixed(5)} cm²</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">窗口面积 Wa:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${wa.toFixed(5)} cm²</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">原边匝数 Np:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${np} T</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">副边匝数 Ns:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ns} T</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">激磁电感 Lm:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(lm * 1000000).toFixed(5)} μH</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">气隙 lg:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(lg * 10000).toFixed(5)} cm</span>
+                        </div>
+                    </div>
 
-        const Rc_max = ((1 - dmax) * vripple) / (2 * ioutMax);
-        const Cmin = (dmax * ioutMax) / (fsw * 1000 * vripple);
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、原副边绕组有效值电流</h4>
+                        <div class="result-item">
+                            <span class="result-label">原边有效值电流 Ipri(rms):</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ipri_rms_max.toFixed(5)} A</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">副边有效值电流 Isec(rms):</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${isec_rms_max.toFixed(5)} A</span>
+                        </div>
+                    </div>
 
-        document.getElementById('result-pomax').textContent = pomax.toFixed(5);
-        document.getElementById('result-rmin').textContent = rmin.toFixed(5);
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、MOSFET计算</h4>
+                        <div class="result-item">
+                            <span class="result-label">电压应力 Vds_stress:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds_stress.toFixed(5)} V</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">有效值电流 Ids(rms):</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ids_rms_max.toFixed(5)} A</span>
+                        </div>
+                    </div>
 
-        document.getElementById('result-turns-ratio').textContent = `${Np}:${Ns} = ${N_int}:1`;
-        document.getElementById('result-dmax').textContent = dmax.toFixed(5);
-        document.getElementById('result-ap').textContent = Wa_Ac.toFixed(5);
-        document.getElementById('result-ac').textContent = Ac.toFixed(5);
-        document.getElementById('result-wa').textContent = Wa.toFixed(5);
-        document.getElementById('result-ns').textContent = Ns;
-        document.getElementById('result-np').textContent = Np;
-        document.getElementById('result-lm').textContent = Lm.toFixed(5);
-        document.getElementById('result-lg').textContent = lg.toFixed(5);
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、副边二极管计算</h4>
+                        <div class="result-item">
+                            <span class="result-label">反向电压应力 Vd(max):</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd_max.toFixed(5)} V</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">平均电流 Id(avg):</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${id_avg_max.toFixed(5)} A</span>
+                        </div>
+                    </div>
 
-        document.getElementById('result-ipri-rms').textContent = IpriRms.toFixed(5);
-        document.getElementById('result-isec-rms').textContent = IsecRms.toFixed(5);
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、输出滤波电容</h4>
+                        <div class="result-item">
+                            <span class="result-label">最大允许ESR Rc_max:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${rc_max.toFixed(5)} Ω</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">最小电容量 Cmin:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${c_min.toFixed(5)} μF</span>
+                        </div>
+                    </div>
 
-        document.getElementById('result-vds').textContent = Vds.toFixed(5);
-        document.getElementById('result-vd-max').textContent = Vdmax.toFixed(5);
-
-        document.getElementById('result-rc-max').textContent = Rc_max.toFixed(5);
-        document.getElementById('result-cmin').textContent = Cmin.toFixed(5);
-
-        document.getElementById('results-section').style.display = 'block';
+                    <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">七、器件选型建议</h4>
+                        <div class="result-item">
+                            <span class="result-label">输出电容:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">220~330 μF/25 V 低ESR</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">负载电阻:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${r_min.toFixed(2)} Ω/30 W</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">MOSFET:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">600 V/≥0.5 A</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">二极管:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">100 V/≥2 A</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 };
 
-function flybackDCMInit() {
+function flyback_dcmInit() {
     FlybackDCM.init();
 }
 
 window.FlybackDCM = FlybackDCM;
-window.flybackDCMInit = flybackDCMInit;
+window.flyback_dcmInit = flyback_dcmInit;

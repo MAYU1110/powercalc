@@ -252,66 +252,64 @@ const App = {
 
     async loadTopologyModule(topologyName) {
         const pageEl = document.querySelector('[data-page="topology"]');
-        if (!pageEl) return;
+        if (!pageEl) {
+            console.log('loadTopologyModule: page element not found');
+            return;
+        }
+
+        console.log('loadTopologyModule called with:', topologyName);
 
         try {
-            // 处理带有子目录的拓扑名称，如 'flyback/ccm'
-            const parts = topologyName.split('/');
-            let baseName, subDir, fullPath;
-            
-            if (parts.length === 2) {
-                baseName = parts[0];
-                subDir = parts[1];
-                fullPath = `${baseName}/${subDir}`;
-            } else {
-                baseName = topologyName;
-                subDir = '';
-                fullPath = topologyName;
+            if (topologyName === 'flyback') {
+                topologyName = 'flyback/ccm';
             }
-            
-            // 构建文件名
-            const fileName = subDir ? `${baseName}_${subDir}` : baseName;
-            
-            const response = await fetch(`topology/${fullPath}/${fileName}.html`);
+
+            const parts = topologyName.split('/');
+            let fileName;
+            if (parts.length === 2) {
+                fileName = `${parts[0]}_${parts[1]}`;
+            } else {
+                fileName = topologyName;
+            }
+            console.log('loadTopologyModule: loading', `topology/${topologyName}/${fileName}.html`);
+            const response = await fetch(`topology/${topologyName}/${fileName}.html`);
             if (response.ok) {
                 const html = await response.text();
                 pageEl.innerHTML = html;
                 
-                // 移除之前加载的拓扑相关的CSS和JS
                 document.querySelectorAll('link[href*="topology/"]').forEach(link => link.remove());
                 document.querySelectorAll('script[src*="topology/"]').forEach(script => script.remove());
 
                 const link = document.createElement('link');
                 link.rel = 'stylesheet';
-                link.href = `topology/${fullPath}/${fileName}.css`;
+                link.href = `topology/${topologyName}/${fileName}.css`;
                 document.head.appendChild(link);
 
                 const script = document.createElement('script');
-                script.src = `topology/${fullPath}/${fileName}.js`;
+                script.src = `topology/${topologyName}/${fileName}.js`;
                 script.onload = () => {
-                    // 构建初始化函数名，支持全大写的模式名称（如CCM、DCM）
-                    let initFunctionName;
-                    if (subDir) {
-                        if (subDir === 'ccm' || subDir === 'dcm') {
-                            initFunctionName = `${baseName}${subDir.toUpperCase()}Init`;
-                        } else {
-                            initFunctionName = `${baseName}${subDir.charAt(0).toUpperCase() + subDir.slice(1)}Init`;
-                        }
-                    } else {
-                        initFunctionName = `${baseName}Init`;
-                    }
+                    const initFunctionName = `${fileName}Init`;
+                    console.log('loadTopologyModule: calling', initFunctionName);
                     if (window[initFunctionName]) {
                         window[initFunctionName]();
+                    } else {
+                        console.log('loadTopologyModule:', initFunctionName, 'not found');
                     }
                 };
+                script.onerror = () => {
+                    console.log('loadTopologyModule: failed to load script');
+                };
                 document.body.appendChild(script);
+            } else {
+                console.log('loadTopologyModule: fetch failed, status:', response.status);
             }
         } catch (e) {
+            console.log('loadTopologyModule: error', e);
             pageEl.innerHTML = `
                 <div class="container" style="padding-top: var(--spacing-xl);">
                     <div class="glass-card" style="padding: var(--spacing-xl); text-align: center;">
                         <h2 style="margin-bottom: var(--spacing-md);">电路拓扑设计</h2>
-                        <p style="color: var(--text-secondary);">正在加载Buck降压电路模块...</p>
+                        <p style="color: var(--text-secondary);">正在加载模块...</p>
                     </div>
                 </div>
             `;

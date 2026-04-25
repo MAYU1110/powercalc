@@ -1,150 +1,33 @@
-/* Flyback CCM Mode Styles */
+.topology-selector {
+    transition: all var(--transition-normal);
+}
 
-/* 模式选择器样式 */
+.topology-selector:hover {
+    border-color: var(--accent-primary);
+}
+
 .mode-selector {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
 }
 
-/* 结果卡片样式 */
-.result-card {
-    background: rgba(255, 255, 255, 0.03);
+.mode-selector:hover {
+    border-color: var(--accent-primary);
+}
+
+.schematic-svg {
+    background: var(--bg-secondary);
     border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
 }
 
-/* 结果项样式 */
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-sm) 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.result-item:last-child {
-    border-bottom: none;
-}
-
-/* 结果标签样式 */
-.result-label {
-    color: var(--text-secondary);
-    font-size: 0.9375rem;
-}
-
-/* 结果值样式 */
-.result-value {
-    font-family: var(--font-mono);
-    font-weight: 600;
-    color: var(--accent-secondary);
-    font-size: 1rem;
-}
-
-/* 结果单位样式 */
-.result-unit {
-    color: var(--text-muted);
-    margin-left: 0.25rem;
-    font-size: 0.875rem;
-}
-
-/* 表单组样式 */
-.form-group {
-    margin-bottom: var(--spacing-md);
-}
-
-/* 表单标签样式 */
-.form-label {
+.schematic-svg svg {
     display: block;
-    margin-bottom: var(--spacing-xs);
-    color: var(--text-primary);
-    font-size: 0.9375rem;
-    font-weight: 500;
+    margin: 0 auto;
 }
 
-/* 表单输入样式 */
-.form-input {
-    width: 100%;
-    padding: var(--spacing-md);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: all 0.2s ease;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* 表单单位样式 */
-.form-unit {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    margin-left: 0.5rem;
-}
-
-/* 按钮样式 */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: var(--radius-md);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-primary {
-    background: var(--accent-primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--accent-primary-hover);
-    transform: translateY(-1px);
-}
-
-/* 选择器样式 */
-.form-select {
-    width: 100%;
-    padding: var(--spacing-md);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.form-select:focus {
-    outline: none;
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* 网格布局 */
-.grid {
-    display: grid;
-    gap: var(--spacing-lg);
-}
-
-.grid-2 {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
-/* 响应式调整 */
 @media (max-width: 768px) {
-    .grid-2 {
-        grid-template-columns: 1fr;
+    .schematic-svg svg {
+        width: 100%;
+        height: auto;
     }
 }

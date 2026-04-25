@@ -30,7 +30,6 @@ const LLC = {
                 'buck': 'Buck降压电路',
                 'boost': 'Boost升压电路',
                 'buckboost': 'Buck-Boost升降压电路',
-                'flyback': '反激电路',
                 'llc': 'LLC谐振电路'
             };
             titleElement.textContent = topologyNames[topology] || '电路拓扑结构';
