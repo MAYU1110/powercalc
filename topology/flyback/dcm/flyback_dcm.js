@@ -126,31 +126,24 @@ const FlybackDCM = {
             return;
         }
 
-        const p_omax = vo * iolmax;
-        const r_min = vo / iolmax;
+        const p_omax = Number((vo * iolmax).toFixed(5));
+        const r_min = Number((vo / iolmax).toFixed(5));
 
         const n = Math.round((vds - deltavds - vgmax) / vo);
-        const d_max = 1 / (1 + eta * vgmin / (n * vo));
+        const d_max = Number((1 / (1 + eta * vgmin / (n * vo))).toFixed(5));
 
-        const wa_ac = (2 / Math.sqrt(3)) * (p_omax * (Math.sqrt(1 - d_max) + Math.sqrt(d_max))) / (bm * j * k * fs * eta * 1000) * Math.pow(10, 6);
-        const ac = 0.38;
-        const wa = wa_ac / ac;
-        const ns = Math.round((vo * (1 - d_max) * Math.pow(10, 8)) / (ac * bm * fs * eta * 1000));
-        const np = n * ns;
-        const lm = (Math.pow(n, 2) * Math.pow(1 - d_max, 2) / (2 * eta * fs * 1000)) * (vo / iolmax);
-        const lg = (4 * Math.PI * Math.pow(10, -9) * Math.pow(np, 2) * ac) / lm;
+        const wa_ac = Number(((2 / Math.sqrt(3)) * (p_omax * (Math.sqrt(1 - d_max) + Math.sqrt(d_max))) / (bm * j * k * fs * eta * 1000) * Math.pow(10, 6)).toFixed(5));
+        
+        const lm = Number(((Math.pow(n, 2) * Math.pow(1 - d_max, 2) / (2 * eta * fs * 1000)) * (vo / iolmax)).toFixed(5));
 
-        const ipri_rms_max = (2 / Math.sqrt(3)) * (Math.sqrt(d_max) * iolmax) / (n * (1 - d_max));
-        const isec_rms_max = (2 / Math.sqrt(3)) * iolmax / Math.sqrt(1 - d_max);
+        const ipri_rms_max = Number(((2 / Math.sqrt(3)) * (Math.sqrt(d_max) * iolmax) / (n * (1 - d_max))).toFixed(5));
+        const isec_rms_max = Number(((2 / Math.sqrt(3)) * iolmax / Math.sqrt(1 - d_max)).toFixed(5));
 
-        const vds_stress = vgmax + n * vo;
-        const ids_rms_max = ipri_rms_max;
+        const vds_stress = Number((vgmax + n * vo).toFixed(5));
+        const vd_max = Number((vgmax / n + vo).toFixed(5));
 
-        const vd_max = vgmax / n + vo;
-        const id_avg_max = iolmax;
-
-        const rc_max = ((1 - d_max) * deltavo) / (2 * iolmax);
-        const c_min = (d_max * iolmax * Math.pow(10, 6)) / (fs * deltavo);
+        const rc_max = Number(((1 - d_max) * deltavo / (2 * iolmax)).toFixed(5));
+        const c_min = Number((d_max * iolmax * Math.pow(10, 6) / (fs * deltavo * 1000)).toFixed(5));
 
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {
@@ -173,8 +166,8 @@ const FlybackDCM = {
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、变压器设计（AP法）</h4>
                         <div class="result-item">
-                            <span class="result-label">匝比 Np:Ns:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${np}:${ns} = ${n}:1</span>
+                            <span class="result-label">匝比 N:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${n}:1</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">最大占空比 Dmax:</span>
@@ -185,33 +178,13 @@ const FlybackDCM = {
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${wa_ac.toFixed(5)} cm⁴</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">铁芯截面积 Ac:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ac.toFixed(5)} cm²</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">窗口面积 Wa:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${wa.toFixed(5)} cm²</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">原边匝数 Np:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${np} T</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">副边匝数 Ns:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ns} T</span>
-                        </div>
-                        <div class="result-item">
                             <span class="result-label">激磁电感 Lm:</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(lm * 1000000).toFixed(5)} μH</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">气隙 lg:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(lg * 10000).toFixed(5)} cm</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、原副边绕组有效值电流</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、绕组电流与线规</h4>
                         <div class="result-item">
                             <span class="result-label">原边有效值电流 Ipri(rms):</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ipri_rms_max.toFixed(5)} A</span>
@@ -223,31 +196,19 @@ const FlybackDCM = {
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、MOSFET计算</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、MOSFET与二极管</h4>
                         <div class="result-item">
-                            <span class="result-label">电压应力 Vds_stress:</span>
+                            <span class="result-label">MOS电压应力 Vds:</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds_stress.toFixed(5)} V</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">有效值电流 Ids(rms):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ids_rms_max.toFixed(5)} A</span>
-                        </div>
-                    </div>
-
-                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、副边二极管计算</h4>
-                        <div class="result-item">
-                            <span class="result-label">反向电压应力 Vd(max):</span>
+                            <span class="result-label">二极管反向电压 Vd(max):</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd_max.toFixed(5)} V</span>
                         </div>
-                        <div class="result-item">
-                            <span class="result-label">平均电流 Id(avg):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${id_avg_max.toFixed(5)} A</span>
-                        </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、输出滤波电容</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、输出滤波电容</h4>
                         <div class="result-item">
                             <span class="result-label">最大允许ESR Rc_max:</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${rc_max.toFixed(5)} Ω</span>
@@ -259,7 +220,7 @@ const FlybackDCM = {
                     </div>
 
                     <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">七、器件选型建议</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、器件选型建议</h4>
                         <div class="result-item">
                             <span class="result-label">输出电容:</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">220~330 μF/25 V 低ESR</span>
