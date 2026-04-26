@@ -66,7 +66,7 @@ const FullbridgeLLC = {
                         <line x1="100" y1="50" x2="160" y2="50" stroke="#60a5fa" stroke-width="2"/>
                         <text x="130" y="85" text-anchor="middle" fill="#60a5fa" font-size="12" font-family="var(--font-mono)">Cin</text>
 
-                        <line x1="160" y1="50" x2="200" y2="50" stroke="#60a5fa" stroke-width="2"/>
+                        <line x1="160" y1="50" x2="200" y2="50" stroke="#f59e0b" stroke-width="2"/>
                         <rect x="200" y="30" width="40" height="40" rx="2" fill="none" stroke="#f59e0b" stroke-width="2"/>
                         <line x1="200" y1="40" x2="240" y2="40" stroke="#f59e0b" stroke-width="2"/>
                         <line x1="220" y1="30" x2="220" y2="70" stroke="#f59e0b" stroke-width="2"/>
@@ -147,65 +147,53 @@ const FullbridgeLLC = {
     },
 
     calculate() {
-        const vin = parseFloat(document.getElementById('param-vin').value);
+        const vin_min = parseFloat(document.getElementById('param-vin_min').value);
+        const vin_max = parseFloat(document.getElementById('param-vin_max').value);
+        const vin_nom = parseFloat(document.getElementById('param-vin_nom').value);
         const vout = parseFloat(document.getElementById('param-vout').value);
+        const io = parseFloat(document.getElementById('param-io').value);
         const po = parseFloat(document.getElementById('param-po').value);
-        const fs = parseFloat(document.getElementById('param-fs').value);
         const fr = parseFloat(document.getElementById('param-fr').value);
-        const ku = parseFloat(document.getElementById('param-ku').value);
+        const fmin = parseFloat(document.getElementById('param-fmin').value);
+        const fmax = parseFloat(document.getElementById('param-fmax').value);
         const eta = parseFloat(document.getElementById('param-eta').value);
+        const k = parseFloat(document.getElementById('param-k').value);
+        const q = parseFloat(document.getElementById('param-q').value);
 
-        if (!vin || !vout || !po || !fs || !fr || !ku || !eta) {
+        if (!vin_min || !vin_max || !vin_nom || !vout || !io || !po || !fr || !fmin || !fmax || !eta || !k || !q) {
             alert('请填写所有必填参数');
             return;
         }
 
-        if (vin <= 0 || vout <= 0 || po <= 0) {
+        if (vin_min <= 0 || vin_max <= 0 || vin_nom <= 0 || vout <= 0 || io <= 0 || po <= 0 || fr <= 0 || fmin <= 0 || fmax <= 0 || eta <= 0 || k <= 0 || q <= 0) {
             alert('输入参数必须为正数');
             return;
         }
 
         const pi = Math.PI;
 
-        const io = po / vout;
-        const pin = po / eta;
-        const iin = pin / vin;
+        const n = Math.ceil(vin_nom / (vout * eta));
+        const n_fixed = parseFloat(n.toFixed(5));
 
-        const n = vin / (2 * vout);
+        const m_max = parseFloat((n * vout / vin_min).toFixed(5));
+        const m_min = parseFloat((n * vout / vin_max).toFixed(5));
 
-        const m = vout / (vin / 2);
+        const rl = parseFloat((vout / io).toFixed(5));
+        const r_ac = parseFloat((n * n * 8 * rl / (pi * pi)).toFixed(5));
 
-        const lambda = fs / fr;
+        const zo = parseFloat((q * r_ac).toFixed(5));
 
-        const q = 0.5;
+        const lr = parseFloat((zo / (2 * pi * fr * Math.pow(10, 3))).toFixed(10) *Math.pow(10, 6));
+        const cr = parseFloat((1 / (2 * pi * fr * Math.pow(10, 3) * zo)).toFixed(10) * Math.pow(10, 9));
+        // console.log('cr value:', cr);
+        const lm = parseFloat((k * lr).toFixed(10));
 
-        const k_val = 0.2;
-
-        const lratio = 1 / k_val;
-
-        const lk = lratio * 1000;
-
-        const fr_rad = 2 * pi * fr * 1000;
-        const lmr = lk / (lratio - 1);
-        const cr = 1 / (Math.pow(fr_rad, 2) * lmr);
-
-        const lm = lmr * 1000;
-
-        const delta_i_m = (vout / (4 * fr * lm)) * Math.pow(10, 6);
-
-        const i_rms_primary = (po / (2 * vout * eta)) * Math.sqrt((2 * lambda) / pi);
-
-        const i_rms_secondary = (po / vout) * Math.sqrt(1 / (2 * lambda));
-
-        const vds_stress = vin / 2;
-
-        const vd_stress = 2 * vout * n;
-
-        const delta_vout = vout * ku;
-        const c_out = (po / (8 * fr * vout * delta_vout)) * Math.pow(10, 6);
+        const vds = vin_max;
+        const vd = parseFloat((vin_max / n + vout).toFixed(5));
 
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {
+            resultsSection.style.display = 'block';
             resultsSection.innerHTML = `
                 <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
                     <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 设计计算结果</h3>
@@ -213,96 +201,96 @@ const FullbridgeLLC = {
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、基础参数</h4>
                         <div class="result-item">
-                            <span class="result-label">输入功率 Pin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${pin.toFixed(5)} W</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">输入电流 Iin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${iin.toFixed(5)} A</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">输出电流 Io:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${io.toFixed(5)} A</span>
-                        </div>
-                        <div class="result-item">
                             <span class="result-label">变压器匝比 n:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${n.toFixed(5)}</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${n_fixed.toFixed(5)}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">电压增益 M:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${m.toFixed(5)}</span>
+                            <span class="result-label">最大电压增益 Mmax:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${m_max.toFixed(5)}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">频率比 λ:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lambda.toFixed(5)}</span>
+                            <span class="result-label">最小电压增益 Mmin:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${m_min.toFixed(5)}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、谐振网络设计</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、负载等效参数</h4>
                         <div class="result-item">
-                            <span class="result-label">励磁电感 Lm:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lm.toFixed(5)} μH</span>
+                            <span class="result-label">输出侧等效电阻 Rl:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${rl.toFixed(5)} Ω</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">交流等效电阻 Rac:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${r_ac.toFixed(5)} Ω</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、谐振腔参数</h4>
+                        <div class="result-item">
+                            <span class="result-label">特征阻抗 Zo:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${zo.toFixed(5)} Ω</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">谐振电感 Lr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lk.toFixed(5)} μH</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lr.toFixed(5)} μH</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">谐振电容 Cr:</span>
                             <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${cr.toFixed(5)} nF</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">励磁电流纹波 ΔIm:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${delta_i_m.toFixed(5)} A</span>
-                        </div>
-                    </div>
-
-                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、绕组电流有效值</h4>
-                        <div class="result-item">
-                            <span class="result-label">原边电流 Irms:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${i_rms_primary.toFixed(5)} A</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">副边电流 Irms:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${i_rms_secondary.toFixed(5)} A</span>
+                            <span class="result-label">励磁电感 Lm:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lm.toFixed(5)} μH</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、器件应力分析</h4>
                         <div class="result-item">
-                            <span class="result-label">开关管电压应力 Vds:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds_stress.toFixed(5)} V</span>
+                            <span class="result-label">原边MOS电压应力 Vds:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds.toFixed(5)} V</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">二极管电压应力 Vd:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd_stress.toFixed(5)} V</span>
-                        </div>
-                    </div>
-
-                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、输出滤波电容</h4>
-                        <div class="result-item">
-                            <span class="result-label">最小输出电容 Cmin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${c_out.toFixed(5)} μF</span>
+                            <span class="result-label">副边二极管反向电压 Vd:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd.toFixed(5)} V</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、器件选型建议</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、最终设计结果</h4>
                         <div class="result-item">
-                            <span class="result-label">开关管:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${vds_stress.toFixed(0)} V/≥${(i_rms_primary * 2).toFixed(2)} A SiC MOSFET ×4</span>
+                            <span class="result-label">变压器匝比 n:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${n}:1 (原边:副边)</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">输出二极管:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${vd_stress.toFixed(0)} V/≥${io.toFixed(2)} A 肖特基或SiC二极管</span>
+                            <span class="result-label">谐振电感 Lr:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${lr.toFixed(5)} μH</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">输出电容:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${c_out.toFixed(0)} μF/25 V 低ESR</span>
+                            <span class="result-label">谐振电容 Cr:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${cr.toFixed(5)} nF</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">励磁电感 Lm:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${lm.toFixed(5)} μH</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">谐振频率 fr:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${fr} kHz</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">工作频率范围:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${fmin}~${fmax} kHz</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">MOS电压应力:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${vds} V</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">二极管耐压:</span>
+                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">≥${Math.ceil(vd * 1.2)} V</span>
                         </div>
                     </div>
                 </div>
@@ -314,13 +302,13 @@ const FullbridgeLLC = {
                             <strong style="color: var(--text-primary);">全桥LLC谐振变换器：</strong>全桥LLC采用4个开关管，相比半桥具有更高的功率密度和效率，适用于中大功率应用。
                         </p>
                         <p style="margin-bottom: var(--spacing-md);">
-                            <strong style="color: var(--text-primary);">谐振网络设计：</strong>Lr与Cr形成串联谐振，Lm参与谐振形成LLC特性。k值（Lr/Lm）影响增益曲线形状，一般取0.15~0.25。
+                            <strong style="color: var(--text-primary);">匝比计算：</strong>全桥匝比公式为n = Vin(nom) / (Vo·η)，与半桥不同，不需要除以2。
                         </p>
                         <p style="margin-bottom: var(--spacing-md);">
-                            <strong style="color: var(--text-primary);">频率控制：</strong>当fs接近fr时，变换器工作于谐振点附近，效率最高；当fs > fr时为感性区，fs < fr时为容性区。
+                            <strong style="color: var(--text-primary);">谐振网络设计：</strong>通过特征阻抗Zo = Q·Rac计算谐振电感和电容，确保系统工作在最佳状态。
                         </p>
                         <p>
-                            <strong style="color: var(--text-primary);">开关管应力：</strong>开关管承受最大电压为Vin/2，比半桥LLC低一半，有利于选择更低耐压的器件，降低成本。
+                            <strong style="color: var(--text-primary);">开关管应力：</strong>开关管承受最大电压为Vin(max)，选择器件时需留20%以上电压裕量。
                         </p>
                     </div>
                 </div>
