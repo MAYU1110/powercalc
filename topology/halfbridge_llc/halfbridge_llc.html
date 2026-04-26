@@ -1,0 +1,86 @@
+<div class="container" style="padding-top: var(--spacing-xl);">
+    <h1 class="section-title">电路拓扑设计</h1>
+    <p class="section-subtitle">选择半桥LLC拓扑类型，输入设计参数，自动计算关键器件参数</p>
+
+    <div class="topology-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第一步：选择电路拓扑</h3>
+        <select id="topology-select" class="form-select" style="max-width: 400px;">
+            <option value="buck">Buck 降压电路</option>
+            <option value="boost">Boost 升压电路</option>
+            <option value="buckboost">Buck-Boost 升降压电路</option>
+            <option value="flyback">反激电路</option>
+            <option value="halfbridge_llc" selected>半桥 LLC 谐振电路</option>
+            <option value="fullbridge_llc">全桥 LLC 谐振电路</option>
+        </select>
+    </div>
+
+    <div id="topology-content">
+        <div id="schematic-section" class="schematic-container" style="display: none;">
+            <h3 class="schematic-title">半桥LLC谐振电路</h3>
+            <div class="schematic-image" style="display: flex; justify-content: center; align-items: center;">
+                <img id="topology-image" src="" alt="半桥LLC拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">
+            </div>
+        </div>
+
+        <div id="params-section" class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); display: none;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-lg);">第三步：输入设计参数</h3>
+            <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label">额定输出功率 P <span class="form-unit">(W)</span></label>
+                    <input type="number" id="param-po" class="form-input" placeholder="如: 60" step="1" value="60">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最小输入直流电压 Vmin <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vmin" class="form-input" placeholder="如: 240" step="1" value="240">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大输入直流电压 Vmax <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vmax" class="form-input" placeholder="如: 320" step="1" value="320">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标准输入电压 Vin <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin" class="form-input" placeholder="如: 280" step="1" value="280">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压 Vo <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vout" class="form-input" placeholder="如: 50" step="0.1" value="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电流 Io <span class="form-unit">(A)</span></label>
+                    <input type="number" id="param-io" class="form-input" placeholder="如: 5" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">次级二极管压降 Vf <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vf" class="form-input" placeholder="如: 0.6" step="0.1" value="0.6">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">死区时间 Tdead <span class="form-unit">(ns)</span></label>
+                    <input type="number" id="param-tdead" class="form-input" placeholder="如: 200" step="10" value="200">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">最大工作频率 fmax <span class="form-unit">(kHz)</span></label>
+                    <input type="number" id="param-fmax" class="form-input" placeholder="如: 200" step="1" value="200">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">串联谐振频率 fo <span class="form-unit">(kHz)</span></label>
+                    <input type="number" id="param-fo" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">中点寄生电容 Czvs <span class="form-unit">(pF)</span></label>
+                    <input type="number" id="param-czvs" class="form-input" placeholder="如: 200" step="10" value="200">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">电感比 h (Lm/Lr)</label>
+                    <input type="number" id="param-h" class="form-input" placeholder="如: 3" step="0.1" value="3">
+                </div>
+            </div>
+
+            <button onclick="HalfbridgeLLC.calculate()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-xl); padding: var(--spacing-md) var(--spacing-xl); font-size: 1.125rem;">
+                一键设计
+            </button>
+        </div>
+
+        <div id="results-section" style="display: none;">
+        </div>
+    </div>
+</div>

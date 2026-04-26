@@ -40,8 +40,9 @@ const FlybackCCM = {
                 'buck': 'Buck降压电路',
                 'boost': 'Boost升压电路',
                 'buckboost': 'Buck-Boost升降压电路',
-                'flyback': '反激电路经典拓扑结构 (CCM模式)',
-                'llc': 'LLC谐振电路'
+                'flyback': '反激电路',
+                'halfbridge_llc': '半桥LLC谐振电路',
+                'fullbridge_llc': '全桥LLC谐振电路'
             };
             titleElement.textContent = topologyNames[topology] || '电路拓扑结构';
         }

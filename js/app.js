@@ -60,10 +60,17 @@ const App = {
                                     <p style="color: var(--text-muted); font-size: 0.875rem;">开发中</p>
                                 </div>
                                 <div style="text-align: center;">
-                                    <div style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md);">
-                                        <svg width="32" height="32" fill="var(--accent-warning)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                    <div style="width: 64px; height: 64px; background: rgba(236, 72, 153, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md);">
+                                        <svg width="32" height="32" fill="var(--accent-pink)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                                     </div>
-                                    <h4 style="font-weight: 600; margin-bottom: var(--spacing-xs);">LLC 谐振电路</h4>
+                                    <h4 style="font-weight: 600; margin-bottom: var(--spacing-xs);">半桥LLC</h4>
+                                    <p style="color: var(--text-muted); font-size: 0.875rem;">开发中</p>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="width: 64px; height: 64px; background: rgba(124, 58, 237, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-md);">
+                                        <svg width="32" height="32" fill="var(--accent-purple)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                                    </div>
+                                    <h4 style="font-weight: 600; margin-bottom: var(--spacing-xs);">全桥LLC</h4>
                                     <p style="color: var(--text-muted); font-size: 0.875rem;">开发中</p>
                                 </div>
                                 <div style="text-align: center;">
@@ -117,7 +124,7 @@ const App = {
                             </div>
                             <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-sm);">电路拓扑设计</h3>
                             <p style="color: var(--text-secondary); line-height: 1.7;">
-                                支持Buck、Boost、Buck-Boost、反激、正激、LLC等多种DC-DC拓扑，自动计算电感、电容、开关管应力等关键参数
+                                支持Buck、Boost、Buck-Boost、反激等多种DC-DC拓扑，自动计算电感、电容、开关管应力等关键参数
                             </p>
                         </div>
                         <div class="glass-card" style="padding: var(--spacing-xl);">
@@ -152,7 +159,7 @@ const App = {
                             </div>
                             <div>
                                 <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-xs);">电路拓扑设计</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Buck/Boost/LLC等拓扑计算</p>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">Buck/Boost/反激等拓扑计算</p>
                             </div>
                         </a>
                         <a href="#power" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
