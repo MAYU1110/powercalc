@@ -21,7 +21,7 @@ const App = {
         Router.register('home', () => this.loadPage('home'));
         Router.register('topology', () => this.loadPage('topology'));
         Router.register('power', () => this.loadPage('power'));
-        Router.register('unit', () => this.loadPage('unit'));
+        Router.register('loss', () => this.loadPage('loss'));
         Router.register('more', () => this.loadPage('more'));
     },
 
@@ -36,8 +36,8 @@ const App = {
                 await this.loadTopologyModule('buck');
             } else if (pageName === 'power') {
                 this.loadPowerTool();
-            } else if (pageName === 'unit') {
-                this.loadUnitTool();
+            } else if (pageName === 'loss') {
+                this.loadLossTool();
             } else if (pageName === 'more') {
                 pageEl.innerHTML = `
                     <div class="container" style="padding-top: var(--spacing-xl);">
@@ -171,13 +171,13 @@ const App = {
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">P=U×I等功率相关计算</p>
                             </div>
                         </a>
-                        <a href="#unit" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
+                        <a href="#loss" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
                             <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                                 <svg width="28" height="28" fill="var(--accent-warning)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                             </div>
                             <div>
-                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-xs);">电压电流单位换算</h3>
-                                <p style="color: var(--text-secondary); font-size: 0.875rem;">mV/A/kV等单位的快速转换</p>
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-xs);">损耗估算</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">DC-DC转换器损耗分析</p>
                             </div>
                         </a>
                         <a href="#more" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
@@ -482,147 +482,44 @@ const App = {
         document.getElementById('ohms-result').style.display = 'block';
     },
 
-    loadUnitTool() {
-        const pageEl = document.querySelector('[data-page="unit"]');
+    async loadLossTool() {
+        const pageEl = document.querySelector('[data-page="loss"]');
         if (!pageEl) return;
 
-        pageEl.innerHTML = `
-            <div class="container" style="padding-top: var(--spacing-xl);">
-                <h1 class="section-title">电压电流单位换算</h1>
-                <p class="section-subtitle">常见电气单位的快速转换工具</p>
+        if (pageEl.innerHTML.trim() === '') {
+            try {
+                const response = await fetch('tool/loss_estimation/loss_estimation.html');
+                if (response.ok) {
+                    const html = await response.text();
+                    pageEl.innerHTML = html;
 
-                <div class="grid grid-2" style="gap: var(--spacing-xl);">
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">电压换算</h3>
-                        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
-                            <input type="number" id="voltage-input" class="form-input" placeholder="输入数值" step="0.001">
-                            <select id="voltage-from" class="form-select" style="width: 100px;">
-                                <option value="V">V</option>
-                                <option value="mV">mV</option>
-                                <option value="kV">kV</option>
-                            </select>
-                        </div>
-                        <button onclick="App.convertVoltage()" class="btn btn-primary" style="width: 100%;">
-                            换算
-                        </button>
-                        <div id="voltage-results" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">mV</span>
-                                    <span class="result-value" id="voltage-mv">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">V</span>
-                                    <span class="result-value" id="voltage-v">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">kV</span>
-                                    <span class="result-value" id="voltage-kv">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    document.querySelectorAll('link[href*="tool/"]').forEach(link => link.remove());
+                    document.querySelectorAll('script[src*="tool/"]').forEach(script => script.remove());
 
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">电流换算</h3>
-                        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
-                            <input type="number" id="current-input" class="form-input" placeholder="输入数值" step="0.001">
-                            <select id="current-from" class="form-select" style="width: 100px;">
-                                <option value="A">A</option>
-                                <option value="mA">mA</option>
-                                <option value="kA">kA</option>
-                            </select>
-                        </div>
-                        <button onclick="App.convertCurrent()" class="btn btn-primary" style="width: 100%;">
-                            换算
-                        </button>
-                        <div id="current-results" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">mA</span>
-                                    <span class="result-value" id="current-ma">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">A</span>
-                                    <span class="result-value" id="current-a">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">kA</span>
-                                    <span class="result-value" id="current-ka">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = 'tool/loss_estimation/loss_estimation.css';
+                    document.head.appendChild(link);
 
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">功率换算</h3>
-                        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
-                            <input type="number" id="powerunit-input" class="form-input" placeholder="输入数值" step="0.001">
-                            <select id="powerunit-from" class="form-select" style="width: 100px;">
-                                <option value="W">W</option>
-                                <option value="mW">mW</option>
-                                <option value="kW">kW</option>
-                                <option value="MW">MW</option>
-                            </select>
-                        </div>
-                        <button onclick="App.convertPower()" class="btn btn-primary" style="width: 100%;">
-                            换算
-                        </button>
-                        <div id="powerunit-results" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">mW</span>
-                                    <span class="result-value" id="powerunit-mw">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">W</span>
-                                    <span class="result-value" id="powerunit-w">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">kW</span>
-                                    <span class="result-value" id="powerunit-kw">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">MW</span>
-                                    <span class="result-value" id="powerunit-mwunit">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    const script = document.createElement('script');
+                    script.src = 'tool/loss_estimation/loss_estimation.js';
+                    script.onload = () => {
+                        if (window.loss_estimationInit) {
+                            window.loss_estimationInit();
+                        }
+                    };
+                    document.body.appendChild(script);
+                } else {
+                    pageEl.innerHTML = this.getPlaceholderContent('损耗估算');
+                }
+            } catch (e) {
+                console.error('Failed to load loss estimation module:', e);
+                pageEl.innerHTML = this.getPlaceholderContent('损耗估算');
+            }
+        }
 
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">频率换算</h3>
-                        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
-                            <input type="number" id="freq-input" class="form-input" placeholder="输入数值" step="0.001">
-                            <select id="freq-from" class="form-select" style="width: 100px;">
-                                <option value="Hz">Hz</option>
-                                <option value="kHz">kHz</option>
-                                <option value="MHz">MHz</option>
-                            </select>
-                        </div>
-                        <button onclick="App.convertFreq()" class="btn btn-primary" style="width: 100%;">
-                            换算
-                        </button>
-                        <div id="freq-results" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">Hz</span>
-                                    <span class="result-value" id="freq-hz">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">kHz</span>
-                                    <span class="result-value" id="freq-khz">-</span>
-                                </div>
-                                <div class="result-item">
-                                    <span class="result-label">MHz</span>
-                                    <span class="result-value" id="freq-mhz">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        pageEl.classList.add('active');
     },
 
     convertVoltage() {

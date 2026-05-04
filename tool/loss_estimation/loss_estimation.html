@@ -1,0 +1,73 @@
+<div class="container" style="padding-top: var(--spacing-xl);">
+    <h1 class="section-title">损耗估算工具</h1>
+    <p class="section-subtitle">DC-DC转换器损耗分析与效率估算</p>
+
+    <div class="topology-selector glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">选择电路拓扑</h3>
+        <select id="topology-select" class="form-select" style="max-width: 400px;">
+            <option value="buck">Buck 降压电路</option>
+            <option value="boost">Boost 升压电路</option>
+            <option value="buckboost">Buck-Boost 升降压电路</option>
+            <option value="halfbridge_llc">半桥 LLC 谐振电路</option>
+            <option value="fullbridge_llc">全桥 LLC 谐振电路</option>
+        </select>
+    </div>
+
+    <div id="topology-content">
+        <div id="schematic-section" class="schematic-container" style="display: none;">
+            <h3 class="schematic-title">损耗估算</h3>
+            <div class="schematic-image" style="display: flex; justify-content: center; align-items: center;">
+                <img id="topology-image" src="" alt="电路拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">
+            </div>
+        </div>
+
+        <div id="params-section" class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); display: none;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-lg);">输入设计参数</h3>
+            <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                <div class="form-group">
+                    <label class="form-label">输入电压 Vin <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vin" class="form-input" placeholder="如: 400" step="0.1" value="400">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电压 Vout <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vout" class="form-input" placeholder="如: 12" step="0.1" value="12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">输出电流 Iout <span class="form-unit">(A)</span></label>
+                    <input type="number" id="param-iout" class="form-input" placeholder="如: 5" step="0.1" value="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">开关频率 Fsw <span class="form-unit">(kHz)</span></label>
+                    <input type="number" id="param-fsw" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MOSFET导通电阻 Rds(on) <span class="form-unit">(Ω)</span></label>
+                    <input type="number" id="param-rds" class="form-input" placeholder="如: 0.03" step="0.001" value="0.03">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">MOSFET内阻温度 <span class="form-unit">(°C)</span></label>
+                    <input type="number" id="param-temp" class="form-input" placeholder="如: 100" step="1" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">二极管正向压降 Vf <span class="form-unit">(V)</span></label>
+                    <input type="number" id="param-vf" class="form-input" placeholder="如: 0.5" step="0.01" value="0.5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">电感DCR <span class="form-unit">(Ω)</span></label>
+                    <input type="number" id="param-dcr" class="form-input" placeholder="如: 0.01" step="0.001" value="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">效率 η <span class="form-unit">(%)</span></label>
+                    <input type="number" id="param-eff" class="form-input" placeholder="如: 95" step="0.1" value="95">
+                </div>
+            </div>
+
+            <button onclick="LossEstimation.calculate()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-xl); padding: var(--spacing-md) var(--spacing-xl); font-size: 1.125rem;">
+                计算损耗
+            </button>
+        </div>
+
+        <div id="results-section" style="display: none;">
+        </div>
+    </div>
+</div>
