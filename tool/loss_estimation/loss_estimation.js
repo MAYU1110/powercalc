@@ -75,6 +75,13 @@ const LossEstimation = {
                 `;
             };
         }
+
+        // 清除之前的计算结果
+        const resultsSection = document.getElementById('results-section');
+        if (resultsSection) {
+            resultsSection.style.display = 'none';
+            resultsSection.innerHTML = '';
+        }
     },
 
     calculate() {
@@ -109,6 +116,10 @@ const LossEstimation = {
         let p_inductor = 0;
         let duty_cycle = 0;
 
+        // 定义开关时间参数，供所有拓扑使用
+        const tr = 50e-9;  // 上升时间
+        const tf = 50e-9;  // 下降时间
+
         switch (topology) {
             case 'buck':
                 duty_cycle = vout / vin;
@@ -116,8 +127,6 @@ const LossEstimation = {
                 const i_avg_mos = io * (1 - duty_cycle) + i_ripple / 2;
                 p_mos_conduction = i_avg_mos * i_avg_mos * rds_actual * duty_cycle;
                 const i_rms_mos = io * Math.sqrt(duty_cycle) * Math.sqrt(1 + (i_ripple / (2 * io)) ** 2);
-                const tr = 50e-9;
-                const tf = 50e-9;
                 const vds = vin;
                 p_mos_switching = 0.5 * vds * io * (tr + tf) * fsw * 1000;
                 const i_diode_avg = io * (1 - duty_cycle);
