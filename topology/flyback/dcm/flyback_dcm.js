@@ -33,6 +33,22 @@ const FlybackDCM = {
         }
     },
 
+    renderMathKey(label, formula) {
+        try {
+            const rendered = katex.renderToString(formula, {
+                throwOnError: false,
+                displayMode: false
+            });
+            return `${label}（<span class="math-formula" style="color: var(--accent-primary);">${rendered}</span>）`;
+        } catch (e) {
+            return `${label}（${formula}）`;
+        }
+    },
+
+    renderMathValue(value, unit = '') {
+        return `<span class="math-value" style="font-weight: 600; color: var(--accent-primary);">${value}</span>${unit ? `<span class="math-unit" style="color: var(--text-secondary);"> ${unit}</span>` : ''}`;
+    },
+
     loadTopologyImage(topology) {
         const titleElement = document.querySelector('.schematic-title');
         if (titleElement) {
@@ -134,6 +150,7 @@ const FlybackDCM = {
         const d_max = Number((1 / (1 + eta * vgmin / (n * vo))).toFixed(5));
 
         const wa_ac = Number(((2 / Math.sqrt(3)) * (p_omax * (Math.sqrt(1 - d_max) + Math.sqrt(d_max))) / (bm * j * k * fs * eta * 1000) * Math.pow(10, 6)).toFixed(5));
+        const ap = wa_ac;
         
         const lm = Number(((Math.pow(n, 2) * Math.pow(1 - d_max, 2) / (2 * eta * fs * 1000)) * (vo / iolmax)).toFixed(5));
 
@@ -146,6 +163,8 @@ const FlybackDCM = {
         const rc_max = Number(((1 - d_max) * deltavo / (2 * iolmax)).toFixed(5));
         const c_min = Number((d_max * iolmax * Math.pow(10, 6) / (fs * deltavo * 1000)).toFixed(5));
 
+        const coreRecommendations = this.getCoreRecommendations(ap, p_omax, fs);
+
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {
             resultsSection.innerHTML = `
@@ -155,88 +174,93 @@ const FlybackDCM = {
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、基础参数</h4>
                         <div class="result-item">
-                            <span class="result-label">最大输出功率 Pomax:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${p_omax.toFixed(5)} W</span>
+                            <span class="result-label">${this.renderMathKey('最大输出功率', 'P_{omax}')}</span>
+                            <span class="result-value">${this.renderMathValue(p_omax.toFixed(5), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">最小负载电阻 Rmin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${r_min.toFixed(5)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('最小负载电阻', 'R_{min}')}</span>
+                            <span class="result-value">${this.renderMathValue(r_min.toFixed(5), 'Ω')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、变压器设计（AP法）</h4>
                         <div class="result-item">
-                            <span class="result-label">匝比 N:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${n}:1</span>
+                            <span class="result-label">${this.renderMathKey('匝比', 'N')}</span>
+                            <span class="result-value">${this.renderMathValue(n + ':1', '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">最大占空比 Dmax:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${d_max.toFixed(5)}</span>
+                            <span class="result-label">${this.renderMathKey('最大占空比', 'D_{max}')}</span>
+                            <span class="result-value">${this.renderMathValue(d_max.toFixed(5), '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">面积积 Wa·Ac:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${wa_ac.toFixed(5)} cm⁴</span>
+                            <span class="result-label">${this.renderMathKey('理论AP值', 'AP')}</span>
+                            <span class="result-value">${this.renderMathValue(ap.toFixed(5), 'cm⁴')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">激磁电感 Lm:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(lm * 1000000).toFixed(5)} μH</span>
+                            <span class="result-label">${this.renderMathKey('激磁电感', 'L_m')}</span>
+                            <span class="result-value">${this.renderMathValue((lm * 1000000).toFixed(5), 'μH')}</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg); background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、磁芯推荐（理论AP=${ap.toFixed(5)} cm⁴）</h4>
+                        ${coreRecommendations}
+                    </div>
+
+                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、绕组电流与线规</h4>
+                        <div class="result-item">
+                            <span class="result-label">${this.renderMathKey('原边有效值电流', 'I_{pri(rms)}')}</span>
+                            <span class="result-value">${this.renderMathValue(ipri_rms_max.toFixed(5), 'A')}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">${this.renderMathKey('副边有效值电流', 'I_{sec(rms)}')}</span>
+                            <span class="result-value">${this.renderMathValue(isec_rms_max.toFixed(5), 'A')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、绕组电流与线规</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、MOSFET与二极管</h4>
                         <div class="result-item">
-                            <span class="result-label">原边有效值电流 Ipri(rms):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${ipri_rms_max.toFixed(5)} A</span>
+                            <span class="result-label">${this.renderMathKey('MOS电压应力', 'V_{ds}')}</span>
+                            <span class="result-value">${this.renderMathValue(vds_stress.toFixed(5), 'V')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">副边有效值电流 Isec(rms):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${isec_rms_max.toFixed(5)} A</span>
-                        </div>
-                    </div>
-
-                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、MOSFET与二极管</h4>
-                        <div class="result-item">
-                            <span class="result-label">MOS电压应力 Vds:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds_stress.toFixed(5)} V</span>
-                        </div>
-                        <div class="result-item">
-                            <span class="result-label">二极管反向电压 Vd(max):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd_max.toFixed(5)} V</span>
+                            <span class="result-label">${this.renderMathKey('二极管反向电压', 'V_{d(max)}')}</span>
+                            <span class="result-value">${this.renderMathValue(vd_max.toFixed(5), 'V')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、输出滤波电容</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、输出滤波电容</h4>
                         <div class="result-item">
-                            <span class="result-label">最大允许ESR Rc_max:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${rc_max.toFixed(5)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('最大允许ESR', 'R_{c(max)}')}</span>
+                            <span class="result-value">${this.renderMathValue(rc_max.toFixed(5), 'Ω')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">最小电容量 Cmin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${c_min.toFixed(5)} μF</span>
+                            <span class="result-label">${this.renderMathKey('最小电容量', 'C_{min}')}</span>
+                            <span class="result-value">${this.renderMathValue(c_min.toFixed(5), 'μF')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">六、器件选型建议</h4>
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">七、器件选型建议</h4>
                         <div class="result-item">
-                            <span class="result-label">输出电容:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">220~330 μF/25 V 低ESR</span>
+                            <span class="result-label">${this.renderMathKey('输出电容', 'C_{out}')}</span>
+                            <span class="result-value">${this.renderMathValue('220~330 μF/25 V 低ESR', '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">负载电阻:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${r_min.toFixed(2)} Ω/30 W</span>
+                            <span class="result-label">${this.renderMathKey('负载电阻', 'R')}</span>
+                            <span class="result-value">${this.renderMathValue(r_min.toFixed(2) + ' Ω/30 W', '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">MOSFET:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">600 V/≥0.5 A</span>
+                            <span class="result-label">${this.renderMathKey('MOSFET', 'V_{ds}')}</span>
+                            <span class="result-value">${this.renderMathValue('600 V/≥0.5 A', '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">二极管:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">100 V/≥2 A</span>
+                            <span class="result-label">${this.renderMathKey('二极管', 'V_d')}</span>
+                            <span class="result-value">${this.renderMathValue('100 V/≥2 A', '')}</span>
                         </div>
                     </div>
                 </div>
@@ -244,6 +268,60 @@ const FlybackDCM = {
             resultsSection.style.display = 'block';
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    },
+
+    getCoreRecommendations(apValue, power, frequency) {
+        if (typeof recommendCores === 'function') {
+            const recommendations = recommendCores(apValue, power, frequency);
+            return this.formatCoreRecommendations(recommendations);
+        }
+        return this.getFallbackRecommendations(apValue);
+    },
+
+    getFallbackRecommendations(apValue) {
+        const level = apValue < 1.0 ? 'small' : (apValue < 3.0 ? 'medium' : 'large');
+        
+        const fallbackData = {
+            'small': [
+                { model: 'EE16', manufacturer: 'TDK', ap_range: '0.4-0.7 cm⁴', power_range: '10-25W', features: '体积小巧，适合小功率应用' },
+                { model: 'EI16', manufacturer: 'Epcos', ap_range: '0.35-0.6 cm⁴', power_range: '8-20W', features: '性价比高，通用性强' },
+                { model: 'RM10', manufacturer: 'TDK', ap_range: '0.5-0.9 cm⁴', power_range: '10-30W', features: '良好的EMI性能' }
+            ],
+            'medium': [
+                { model: 'EE22', manufacturer: 'TDK', ap_range: '1.5-2.5 cm⁴', power_range: '25-60W', features: '性能均衡，应用广泛' },
+                { model: 'PQ20', manufacturer: 'Murata', ap_range: '1.0-1.8 cm⁴', power_range: '15-45W', features: '高功率密度，适合高频' },
+                { model: 'EI22', manufacturer: 'Epcos', ap_range: '1.2-2.0 cm⁴', power_range: '20-50W', features: '通用性强' }
+            ],
+            'large': [
+                { model: 'EE28', manufacturer: 'TDK', ap_range: '4.5-6.5 cm⁴', power_range: '60-150W', features: '适合工业电源' },
+                { model: 'PQ26', manufacturer: 'Murata', ap_range: '2.5-4.0 cm⁴', power_range: '40-100W', features: '高效低损耗' },
+                { model: 'EER28', manufacturer: 'Murata', ap_range: '3.5-5.5 cm⁴', power_range: '45-110W', features: '适合反激/正激' }
+            ]
+        };
+
+        return this.formatCoreRecommendations(fallbackData[level]);
+    },
+
+    formatCoreRecommendations(recommendations) {
+        if (!Array.isArray(recommendations) || recommendations.length === 0) {
+            return `<p style="color: var(--text-secondary);">无法获取磁芯推荐</p>`;
+        }
+
+        return recommendations.map((core, index) => `
+            <div style="border-bottom: 1px dashed var(--border-light); padding: var(--spacing-md) 0; ${index === recommendations.length - 1 ? 'border-bottom: none;' : ''}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
+                    <span style="font-weight: 600; color: var(--accent-primary); font-size: 1rem;">${index + 1}. ${core.model}</span>
+                    <span style="color: var(--text-muted); font-size: 0.875rem;">${core.manufacturer}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-sm); font-size: 0.875rem;">
+                    <div style="color: var(--text-secondary);">AP范围: <span style="color: var(--accent-primary);">${core.ap_range || `${core.ap_min}-${core.ap_max} cm⁴`}</span></div>
+                    <div style="color: var(--text-secondary);">功率范围: <span style="color: var(--accent-primary);">${core.power_range || `${core.power_min}-${core.power_max}W`}</span></div>
+                </div>
+                ${core.material ? `<div style="color: var(--text-secondary); font-size: 0.875rem; margin-top: var(--spacing-xs);">材料: <span style="color: var(--accent-primary);">${core.material}</span></div>` : ''}
+                ${core.features ? `<p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: var(--spacing-sm);">特点: ${core.features}</p>` : ''}
+                ${core.matchScore ? `<div style="color: var(--text-secondary); font-size: 0.875rem; margin-top: var(--spacing-xs);">匹配度: <span style="color: var(--accent-success); font-weight: 600;">${(core.matchScore * 100).toFixed(1)}%</span></div>` : ''}
+            </div>
+        `).join('');
     }
 };
 

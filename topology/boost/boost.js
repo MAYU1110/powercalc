@@ -106,6 +106,22 @@ const Boost = {
         }
     },
 
+    renderMathKey(label, formula) {
+        try {
+            const rendered = katex.renderToString(formula, {
+                throwOnError: false,
+                displayMode: false
+            });
+            return `${label}（<span class="math-formula" style="color: var(--accent-primary);">${rendered}</span>）`;
+        } catch (e) {
+            return `${label}（${formula}）`;
+        }
+    },
+
+    renderMathValue(value, unit = '') {
+        return `<span class="math-value" style="font-weight: 600; color: var(--accent-primary);">${value}</span>${unit ? `<span class="math-unit" style="color: var(--text-secondary);"> ${unit}</span>` : ''}`;
+    },
+
     calculate() {
         const vin = parseFloat(document.getElementById('param-vin').value);
         const vout = parseFloat(document.getElementById('param-vout').value);
@@ -124,66 +140,53 @@ const Boost = {
             return;
         }
 
-        // 占空比
         const d = 1 - (vin / vout);
-        
-        // 周期
-        const t = 1 / (f * 1000); // 转换为秒
-        
-        // 电感
+        const t = 1 / (f * 1000);
         const l = (vin / (ki * f * 1000 * io)) * (1 - (vin / vout));
-        
-        // 纹波电压
         const deltaU = vout * ku;
-        
-        // 输入电容
         const c1 = (vin / (8 * Math.pow(f * 1000, 2) * l * ku * vout)) * (1 - (vin / vout));
-        
-        // 输出电容
         const c2 = (io / (f * 1000 * ku * vout)) * (1 - (vin / vout));
-        
-        // 负载
         const r = vout / io;
 
-        // 显示计算结果
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {
             resultsSection.innerHTML = `
                 <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
-                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 设计计算结果</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ Boost升压电路设计计算结果</h3>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、元器件参数</h4>
                         <div class="result-item">
-                            <span class="result-label">负载电阻 R:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${r.toFixed(4)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('负载电阻', 'R')}</span>
+                            <span class="result-value">${this.renderMathValue(r.toFixed(4), 'Ω')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">电感 L:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(l * 1000).toFixed(4)} mH</span>
+                            <span class="result-label">${this.renderMathKey('电感', 'L')}</span>
+                            <span class="result-value">${this.renderMathValue((l * 1000).toFixed(4), 'mH')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">输入电容 C1:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(c1 * 1000000).toFixed(4)} μF</span>
+                            <span class="result-label">${this.renderMathKey('输入电容', 'C_1')}</span>
+                            <span class="result-value">${this.renderMathValue((c1 * 1000000).toFixed(4), 'μF')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">输出电容 C2:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${(c2 * 1000000).toFixed(4)} μF</span>
+                            <span class="result-label">${this.renderMathKey('输出电容', 'C_2')}</span>
+                            <span class="result-value">${this.renderMathValue((c2 * 1000000).toFixed(4), 'μF')}</span>
                         </div>
                     </div>
 
-                    <div class="result-card" style="margin-bottom: var(--spacing-lg);">
-                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">设计参数</h4>
+                    <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
+                        <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、设计参数</h4>
                         <div class="result-item">
-                            <span class="result-label">占空比 D:</span>
-                            <span class="result-value">${(d * 100).toFixed(2)}%</span>
+                            <span class="result-label">${this.renderMathKey('占空比', 'D')}</span>
+                            <span class="result-value">${this.renderMathValue((d * 100).toFixed(2), '%')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">周期 T:</span>
-                            <span class="result-value">${(t * 1000000).toFixed(2)} μs</span>
+                            <span class="result-label">${this.renderMathKey('开关周期', 'T')}</span>
+                            <span class="result-value">${this.renderMathValue((t * 1000000).toFixed(2), 'μs')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">纹波电压 Δu:</span>
-                            <span class="result-value">${(deltaU * 1000).toFixed(4)} mV</span>
+                            <span class="result-label">${this.renderMathKey('纹波电压', '\\Delta U')}</span>
+                            <span class="result-value">${this.renderMathValue((deltaU * 1000).toFixed(4), 'mV')}</span>
                         </div>
                     </div>
                 </div>

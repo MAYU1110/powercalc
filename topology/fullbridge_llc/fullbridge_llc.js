@@ -146,6 +146,22 @@ const FullbridgeLLC = {
         }
     },
 
+    renderMathKey(label, formula) {
+        try {
+            const rendered = katex.renderToString(formula, {
+                throwOnError: false,
+                displayMode: false
+            });
+            return `${label}（<span class="math-formula" style="color: var(--accent-primary);">${rendered}</span>）`;
+        } catch (e) {
+            return `${label}（${formula}）`;
+        }
+    },
+
+    renderMathValue(value, unit = '') {
+        return `<span class="math-value" style="font-weight: 600; color: var(--accent-primary);">${value}</span>${unit ? `<span class="math-unit" style="color: var(--text-secondary);"> ${unit}</span>` : ''}`;
+    },
+
     calculate() {
         const vin_min = parseFloat(document.getElementById('param-vin_min').value);
         const vin_max = parseFloat(document.getElementById('param-vin_max').value);
@@ -196,101 +212,101 @@ const FullbridgeLLC = {
             resultsSection.style.display = 'block';
             resultsSection.innerHTML = `
                 <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-lg);">
-                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 设计计算结果</h3>
+                    <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 全桥LLC谐振电路设计计算结果</h3>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、基础参数</h4>
                         <div class="result-item">
-                            <span class="result-label">变压器匝比 n:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${n_fixed.toFixed(5)}</span>
+                            <span class="result-label">${this.renderMathKey('变压器匝比', 'n')}</span>
+                            <span class="result-value">${this.renderMathValue(n_fixed.toFixed(5), '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">最大电压增益 Mmax:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${m_max.toFixed(5)}</span>
+                            <span class="result-label">${this.renderMathKey('最大电压增益', 'M_{max}')}</span>
+                            <span class="result-value">${this.renderMathValue(m_max.toFixed(5), '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">最小电压增益 Mmin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${m_min.toFixed(5)}</span>
+                            <span class="result-label">${this.renderMathKey('最小电压增益', 'M_{min}')}</span>
+                            <span class="result-value">${this.renderMathValue(m_min.toFixed(5), '')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、负载等效参数</h4>
                         <div class="result-item">
-                            <span class="result-label">输出侧等效电阻 Rl:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${rl.toFixed(5)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('输出侧等效电阻', 'R_l')}</span>
+                            <span class="result-value">${this.renderMathValue(rl.toFixed(5), 'Ω')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">交流等效电阻 Rac:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${r_ac.toFixed(5)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('交流等效电阻', 'R_{ac}')}</span>
+                            <span class="result-value">${this.renderMathValue(r_ac.toFixed(5), 'Ω')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、谐振腔参数</h4>
                         <div class="result-item">
-                            <span class="result-label">特征阻抗 Zo:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${zo.toFixed(5)} Ω</span>
+                            <span class="result-label">${this.renderMathKey('特征阻抗', 'Z_o')}</span>
+                            <span class="result-value">${this.renderMathValue(zo.toFixed(5), 'Ω')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">谐振电感 Lr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lr.toFixed(5)} μH</span>
+                            <span class="result-label">${this.renderMathKey('谐振电感', 'L_r')}</span>
+                            <span class="result-value">${this.renderMathValue(lr.toFixed(5), 'μH')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">谐振电容 Cr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${cr.toFixed(5)} nF</span>
+                            <span class="result-label">${this.renderMathKey('谐振电容', 'C_r')}</span>
+                            <span class="result-value">${this.renderMathValue(cr.toFixed(5), 'nF')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">励磁电感 Lm:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${lm.toFixed(5)} μH</span>
+                            <span class="result-label">${this.renderMathKey('励磁电感', 'L_m')}</span>
+                            <span class="result-value">${this.renderMathValue(lm.toFixed(5), 'μH')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">四、器件应力分析</h4>
                         <div class="result-item">
-                            <span class="result-label">原边MOS电压应力 Vds:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vds.toFixed(5)} V</span>
+                            <span class="result-label">${this.renderMathKey('原边MOS电压应力', 'V_{ds}')}</span>
+                            <span class="result-value">${this.renderMathValue(vds.toFixed(5), 'V')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">副边二极管反向电压 Vd:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${vd.toFixed(5)} V</span>
+                            <span class="result-label">${this.renderMathKey('副边二极管反向电压', 'V_d')}</span>
+                            <span class="result-value">${this.renderMathValue(vd.toFixed(5), 'V')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">五、最终设计结果</h4>
                         <div class="result-item">
-                            <span class="result-label">变压器匝比 n:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${n}:1 (原边:副边)</span>
+                            <span class="result-label">${this.renderMathKey('变压器匝比', 'n')}</span>
+                            <span class="result-value">${this.renderMathValue(n + ':1（原边:副边）', '')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">谐振电感 Lr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${lr.toFixed(5)} μH</span>
+                            <span class="result-label">${this.renderMathKey('谐振电感', 'L_r')}</span>
+                            <span class="result-value">${this.renderMathValue(lr.toFixed(5), 'μH')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">谐振电容 Cr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${cr.toFixed(5)} nF</span>
+                            <span class="result-label">${this.renderMathKey('谐振电容', 'C_r')}</span>
+                            <span class="result-value">${this.renderMathValue(cr.toFixed(5), 'nF')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">励磁电感 Lm:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${lm.toFixed(5)} μH</span>
+                            <span class="result-label">${this.renderMathKey('励磁电感', 'L_m')}</span>
+                            <span class="result-value">${this.renderMathValue(lm.toFixed(5), 'μH')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">谐振频率 fr:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${fr} kHz</span>
+                            <span class="result-label">${this.renderMathKey('谐振频率', 'f_r')}</span>
+                            <span class="result-value">${this.renderMathValue(fr, 'kHz')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">工作频率范围:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${fmin}~${fmax} kHz</span>
+                            <span class="result-label">${this.renderMathKey('工作频率范围', 'f_{min}~f_{max}')}</span>
+                            <span class="result-value">${this.renderMathValue(fmin + '~' + fmax, 'kHz')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">MOS电压应力:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">${vds} V</span>
+                            <span class="result-label">${this.renderMathKey('MOS电压应力', 'V_{ds}')}</span>
+                            <span class="result-value">${this.renderMathValue(vds, 'V')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">二极管耐压:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans);">≥${Math.ceil(vd * 1.2)} V</span>
+                            <span class="result-label">${this.renderMathKey('二极管耐压', 'V_d')}</span>
+                            <span class="result-value">${this.renderMathValue('≥' + Math.ceil(vd * 1.2), 'V')}</span>
                         </div>
                     </div>
                 </div>

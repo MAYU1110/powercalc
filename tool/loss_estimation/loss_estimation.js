@@ -84,6 +84,22 @@ const LossEstimation = {
         }
     },
 
+    renderMathKey(label, formula) {
+        try {
+            const rendered = katex.renderToString(formula, {
+                throwOnError: false,
+                displayMode: false
+            });
+            return `${label}（<span class="math-formula" style="color: var(--accent-primary);">${rendered}</span>）`;
+        } catch (e) {
+            return `${label}（${formula}）`;
+        }
+    },
+
+    renderMathValue(value, unit = '') {
+        return `<span class="math-value" style="font-weight: 600; color: var(--accent-primary);">${value}</span>${unit ? `<span class="math-unit" style="color: var(--text-secondary);"> ${unit}</span>` : ''}`;
+    },
+
     calculate() {
         const topology = document.getElementById('topology-select').value;
         const vin = parseFloat(document.getElementById('param-vin').value);
@@ -181,48 +197,48 @@ const LossEstimation = {
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">一、基本参数</h4>
                         <div class="result-item">
-                            <span class="result-label">输入功率 Pin:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(pin.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('输入功率', 'P_{in}')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(pin.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">输出功率 Po:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(po.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('输出功率', 'P_o')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(po.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">总损耗 P_loss:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(loss_total.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('总损耗', 'P_{loss}')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(loss_total.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">占空比 D:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(duty_cycle.toFixed(5))}</span>
+                            <span class="result-label">${this.renderMathKey('占空比', 'D')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(duty_cycle.toFixed(5)), '')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="margin-bottom: var(--spacing-lg);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">二、损耗分布</h4>
                         <div class="result-item">
-                            <span class="result-label">MOSFET导通损耗:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(p_mos_conduction.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('MOSFET导通损耗', 'P_{mos,cond}')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(p_mos_conduction.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">MOSFET开关损耗:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(p_mos_switching.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('MOSFET开关损耗', 'P_{mos,sw}')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(p_mos_switching.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">二极管损耗:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(p_diode.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('二极管损耗', 'P_d')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(p_diode.toFixed(5)), 'W')}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">电感损耗 (DCR):</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary);">${parseFloat(p_inductor.toFixed(5))} W</span>
+                            <span class="result-label">${this.renderMathKey('电感损耗', 'P_{ind}')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(p_inductor.toFixed(5)), 'W')}</span>
                         </div>
                     </div>
 
                     <div class="result-card" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);">
                         <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-primary);">三、效率分析</h4>
                         <div class="result-item">
-                            <span class="result-label">计算效率 η:</span>
-                            <span class="result-value" style="font-weight: 600; color: var(--accent-primary); font-family: var(--font-sans); font-size: 1.25rem;">${parseFloat(eta_calculated.toFixed(5))} %</span>
+                            <span class="result-label">${this.renderMathKey('计算效率', '\\eta')}</span>
+                            <span class="result-value">${this.renderMathValue(parseFloat(eta_calculated.toFixed(5)), '%')}</span>
                         </div>
                         <div class="efficiency-bar">
                             <div class="efficiency-fill" style="width: ${Math.min(eta_calculated, 100)}%;"></div>
