@@ -65,7 +65,7 @@ const FlybackCCM = {
 
         const imageElement = document.getElementById('topology-image');
         if (imageElement) {
-            const imagePath = `../../../image/flyback_topology.png`;
+            const imagePath = `../../../image/topology/flyback_topology.png`;
 
             const container = imageElement.parentElement;
             container.innerHTML = `<img id="topology-image" src="" alt="${topology}拓扑结构" style="max-width: 100%; height: auto; max-height: 300px; border-radius: var(--radius-md);">`;

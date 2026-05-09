@@ -40,7 +40,7 @@ const BuckBoost = {
         const imageElement = document.getElementById('topology-image');
         if (imageElement) {
             // 构造图片路径
-            const imagePath = `../../image/${topology}_topology.png`;
+            const imagePath = `../../image/topology/${topology}_topology.png`;
             
             // 确保容器是图片元素，而不是SVG
             const container = imageElement.parentElement;
