@@ -1,0 +1,53 @@
+<div class="convert-container">
+    <div class="convert-title">
+        <h1>电力电子专业单位换算器</h1>
+        <p>适配电路设计、电源拓扑、电力工程、嵌入式开发快速换算</p>
+        <div class="divider"></div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-item active" data-category="basic">基础电学</button>
+        <button class="tab-item" data-category="power">功率能源</button>
+        <button class="tab-item" data-category="frequency">频率时间</button>
+        <button class="tab-item" data-category="component">电感电容</button>
+        <button class="tab-item" data-category="electromagnetic">电磁物理</button>
+        <button class="tab-item" data-category="engineering">工程常用</button>
+        <button class="tab-item" data-category="data">数据进制</button>
+    </div>
+
+    <div class="convert-card">
+        <div class="convert-row">
+            <input type="text" id="inputValue" class="convert-input" placeholder="输入数值" />
+            <select id="inputUnit" class="convert-select">
+                <option value="V">伏特 (V)</option>
+                <option value="kV">千伏 (kV)</option>
+                <option value="mV">毫伏 (mV)</option>
+                <option value="uV">微伏 (μV)</option>
+            </select>
+        </div>
+
+        <div class="convert-equal">=</div>
+
+        <div class="convert-row">
+            <input type="text" id="outputValue" class="convert-output" readonly placeholder="换算结果" />
+            <select id="outputUnit" class="convert-select">
+                <option value="V">伏特 (V)</option>
+                <option value="kV">千伏 (kV)</option>
+                <option value="mV">毫伏 (mV)</option>
+                <option value="uV">微伏 (μV)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="convert-relations">
+        <div class="divider"></div>
+        <h3>单位换算关系</h3>
+        <div id="unitRelations" class="relations-content">
+            <!-- KaTeX 渲染的单位关系公式 -->
+        </div>
+    </div>
+
+    <div class="convert-desc">
+        <p>PowerCalc 专业工程工具 · 专注电力电子与电路设计</p>
+    </div>
+</div>

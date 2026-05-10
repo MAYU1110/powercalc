@@ -21,6 +21,7 @@ const App = {
     registerRoutes() {
         Router.register('home', () => this.loadPage('home'));
         Router.register('topology', () => this.loadPage('topology'));
+        Router.register('convert', () => this.loadPage('convert'));
         Router.register('power', () => this.loadPage('power'));
         Router.register('loss', () => this.loadPage('loss'));
         Router.register('more', () => this.loadPage('more'));
@@ -35,6 +36,8 @@ const App = {
                 this.renderHomePage(pageEl);
             } else if (pageName === 'topology') {
                 await this.loadTopologyModule('buck');
+            } else if (pageName === 'convert') {
+                await this.loadConvertTool();
             } else if (pageName === 'power') {
                 this.loadPowerTool();
             } else if (pageName === 'loss') {
@@ -114,7 +117,7 @@ const App = {
                             <ul>
                                 <li><a href="#home">首页</a></li>
                                 <li><a href="#topology">电路拓扑设计</a></li>
-                                <li><a href="#power">功率换算工具</a></li>
+                                <li><a href="#convert">单位换算</a></li>
                                 <li><a href="#loss">损耗估算</a></li>
                             </ul>
                         </div>
@@ -412,6 +415,51 @@ const App = {
                 </div>
             `;
         }
+    },
+
+    async loadConvertTool() {
+        const pageEl = document.querySelector('[data-page="convert"]');
+        if (!pageEl) return;
+
+        // 加载CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'convertertools/converter.css';
+        document.head.appendChild(link);
+
+        // 加载 KaTeX CSS
+        const katexCss = document.createElement('link');
+        katexCss.rel = 'stylesheet';
+        katexCss.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css';
+        document.head.appendChild(katexCss);
+
+        // 加载HTML内容
+        const response = await fetch('convertertools/converter.html');
+        const html = await response.text();
+        pageEl.innerHTML = html;
+
+        // 先加载 KaTeX，然后加载转换器脚本
+        const katexScript = document.createElement('script');
+        katexScript.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js';
+        katexScript.onload = () => {
+            // 加载 KaTeX 自动渲染插件
+            const katexAutoScript = document.createElement('script');
+            katexAutoScript.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js';
+            katexAutoScript.onload = () => {
+                // 加载并执行JavaScript
+                const script = document.createElement('script');
+                script.src = 'convertertools/converter.js';
+                script.onload = () => {
+                    // 脚本加载完成后初始化
+                    if (window.ConverterModule) {
+                        new window.ConverterModule();
+                    }
+                };
+                document.body.appendChild(script);
+            };
+            document.body.appendChild(katexAutoScript);
+        };
+        document.body.appendChild(katexScript);
     },
 
     loadPowerTool() {
