@@ -5,6 +5,7 @@ const App = {
         this.setupNavToggle();
         this.registerRoutes();
         this.setupModuleLoader();
+        this.renderFooter();
     },
 
     setupNavToggle() {
@@ -89,6 +90,103 @@ const App = {
 
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         pageEl.classList.add('active');
+    },
+
+    renderFooter() {
+        const footerContainer = document.getElementById('app-footer');
+        if (!footerContainer) return;
+
+        footerContainer.innerHTML = `
+            <div class="container">
+                <div class="footer-top">
+                    <div class="footer-brand">
+                        <div class="footer-logo">
+                            <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"/></svg>
+                        </div>
+                        <div class="footer-info">
+                            <h3>PowerCalc</h3>
+                            <p>专业电力电子电路设计工具</p>
+                        </div>
+                    </div>
+                    <div class="footer-nav">
+                        <div class="footer-col">
+                            <h4>快速导航</h4>
+                            <ul>
+                                <li><a href="#home">首页</a></li>
+                                <li><a href="#topology">电路拓扑设计</a></li>
+                                <li><a href="#power">功率换算工具</a></li>
+                                <li><a href="#loss">损耗估算</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>关于我们</h4>
+                            <ul>
+                                <li><a href="#">隐私政策</a></li>
+                                <li><a href="#">使用条款</a></li>
+                                <li><a href="#">联系我们</a></li>
+                                <li><a href="#">广告合作</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>关注我们</h4>
+                            <div class="footer-qrcodes">
+                                <div class="qrcode-item">
+                                    <div class="qrcode-container">
+                                        <img src="image/qrcode/wechat.png" alt="微信公众号" class="qrcode-img">
+                                    </div>
+                                    <span>微信公众号</span>
+                                </div>
+                                <div class="qrcode-item">
+                                    <div class="qrcode-container">
+                                        <img src="image/qrcode/douyin.png" alt="关注抖音" class="qrcode-img">
+                                    </div>
+                                    <span>抖音</span>
+                                </div>
+                                <div class="qrcode-item">
+                                    <div class="qrcode-container">
+                                        <img src="image/qrcode/bilibili.png" alt="Bilibili" class="qrcode-img">
+                                    </div>
+                                    <span>B站</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-contact">
+                        <div class="contact-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <path d="M22 6l-10 7L2 6"/>
+                            </svg>
+                            <span>商务合作: contact@powercalc.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <path d="M22 6l-10 7L2 6"/>
+                            </svg>
+                            <span>广告合作: ad@powercalc.com</span>
+                        </div>
+                    </div>
+                    <div class="footer-legal">
+                        <div class="legal-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary);">备案号: 京ICP备xxxxxxxx号</a>
+                        </div>
+                        <div class="legal-item">
+                            <img src="image/qrcode/gongan.png" width="16" height="16" alt="公安备案" style="margin-right: 4px;" />
+                            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11000000000000" target="_blank" rel="noreferrer" style="color: var(--text-secondary);">京公网安备xxxxxxxxxxxx号</a>
+                        </div>
+                    </div>
+                    <div class="footer-copyright">
+                        <p>© 2024 PowerCalc.com 版权所有.</p>
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     renderHomePage(container) {
@@ -247,98 +345,6 @@ const App = {
                     </div>
                 </div>
             </section>
-
-            <footer class="footer">
-                <div class="container">
-                    <div class="footer-top">
-                        <div class="footer-brand">
-                            <div class="footer-logo">
-                                <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"/></svg>
-                            </div>
-                            <div class="footer-info">
-                                <h3>PowerCalc</h3>
-                                <p>专业电力电子电路设计工具</p>
-                            </div>
-                        </div>
-                        <div class="footer-nav">
-                            <div class="footer-col">
-                                <h4>快速导航</h4>
-                                <ul>
-                                    <li><a href="#home">首页</a></li>
-                                    <li><a href="#topology">电路拓扑设计</a></li>
-                                    <li><a href="#power">功率换算工具</a></li>
-                                    <li><a href="#loss">损耗估算</a></li>
-                                </ul>
-                            </div>
-                            <div class="footer-col">
-                                <h4>关于我们</h4>
-                                <ul>
-                                    <li><a href="#">隐私政策</a></li>
-                                    <li><a href="#">使用条款</a></li>
-                                    <li><a href="#">联系我们</a></li>
-                                    <li><a href="#">广告合作</a></li>
-                                </ul>
-                            </div>
-                            <div class="footer-col">
-                                <h4>关注我们</h4>
-                                <div class="footer-qrcodes">
-                                    <div class="qrcode-item">
-                                        <div class="qrcode-container">
-                                            <img src="image/qrcode/wechat.png" alt="微信公众号" class="qrcode-img">
-                                        </div>
-                                        <span>微信公众号</span>
-                                    </div>
-                                    <div class="qrcode-item">
-                                        <div class="qrcode-container">
-                                            <img src="image/qrcode/douyin.png" alt="关注抖音" class="qrcode-img">
-                                        </div>
-                                        <span>关注抖音</span>
-                                    </div>
-                                    <div class="qrcode-item">
-                                        <div class="qrcode-container">
-                                            <img src="image/qrcode/github.png" alt="GitHub" class="qrcode-img">
-                                        </div>
-                                        <span>GitHub</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="footer-bottom">
-                        <div class="footer-contact">
-                            <div class="contact-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                    <path d="M22 6l-10 7L2 6"/>
-                                </svg>
-                                <span>商务合作: contact@powercalc.com</span>
-                            </div>
-                            <div class="contact-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                    <path d="M22 6l-10 7L2 6"/>
-                                </svg>
-                                <span>广告合作: ad@powercalc.com</span>
-                            </div>
-                        </div>
-                        <div class="footer-legal">
-                            <div class="legal-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                </svg>
-                                <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary);">备案号: 京ICP备xxxxxxxx号</a>
-                            </div>
-                            <div class="legal-item">
-                                <img src="image/qrcode/gongan.png" width="16" height="16" alt="公安备案" style="margin-right: 4px;" />
-                                <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11000000000000" target="_blank" rel="noreferrer" style="color: var(--text-secondary);">京公网安备xxxxxxxxxxxx号</a>
-                            </div>
-                        </div>
-                        <div class="footer-copyright">
-                            <p>© 2024 PowerCalc.com 版权所有.</p>
-                        </div>
-                    </div>
-                </div>
-            </footer>
         `;
     },
 
