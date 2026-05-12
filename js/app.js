@@ -124,10 +124,10 @@ const App = {
                         <div class="footer-col">
                             <h4>关于我们</h4>
                             <ul>
-                                <li><a href="#">隐私政策</a></li>
-                                <li><a href="#">使用条款</a></li>
-                                <li><a href="#">联系我们</a></li>
-                                <li><a href="#">广告合作</a></li>
+                                <li><a href="docs/privacy.html" target="_blank">隐私政策</a></li>
+                                <li><a href="docs/terms.html" target="_blank">使用条款</a></li>
+                                <li><a href="docs/disclaimer.html" target="_blank">免责声明</a></li>
+                                <li><a href="docs/about.html" target="_blank">关于我们</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
