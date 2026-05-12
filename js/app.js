@@ -177,7 +177,7 @@ const App = {
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                             </svg>
-                            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary);">备案号: 京ICP备xxxxxxxx号</a>
+                            <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer" style="color: var(--text-secondary);">备案号: 京ICP备2023011507号-2</a>
                         </div>
                         <div class="legal-item">
                             <img src="image/qrcode/gongan.png" width="16" height="16" alt="公安备案" style="margin-right: 4px;" />
