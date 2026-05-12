@@ -677,15 +677,15 @@ class ConverterModule {
                 const unitSymbol = this.getUnitSymbol(rel.unit);
                 if (rel.exponent === 0) {
                     formulaParts.push(`1${unitSymbol}`);
+                } else if (index === 0) {
+                    formulaParts.push(`1${unitSymbol}`);
                 } else {
-                    const exp = Math.abs(rel.exponent);
-                    const prefix = rel.exponent > 0 ? '' : '=';
-                    formulaParts.push(`${prefix}10^{${-rel.exponent}}${unitSymbol}`);
+                    formulaParts.push(`=10^{${rel.exponent}}${unitSymbol}`);
                 }
             }
         });
 
-        html += `<span class="katex">\\(${formulaParts.join(' = ')}\\)</span>`;
+        html += `<span class="katex">\\(${formulaParts.join('')}\\)</span>`;
 
         html += `</div></div>`;
 
