@@ -185,7 +185,7 @@ const App = {
                         </div>
                     </div>
                     <div class="footer-copyright">
-                        <p>© 2024 PowerCalc.com 版权所有.</p>
+                        <p>© 2023-2025 PowerCalc.cn 版权所有.</p>
                     </div>
                 </div>
             </div>
