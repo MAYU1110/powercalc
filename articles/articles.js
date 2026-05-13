@@ -372,7 +372,17 @@ class ArticlesModule {
         const article = this.allArticlesData[index];
         if (!article) return;
 
-        let content = marked(article.content);
+        if (typeof marked === 'undefined' || typeof marked.parse !== 'function') {
+            console.error('Marked library not loaded');
+            var content = `<p style="color: var(--accent-danger);">文章内容加载失败：依赖库未加载</p>`;
+        } else {
+            try {
+                var content = marked.parse(article.content);
+            } catch (e) {
+                console.error('Marked parse error:', e);
+                var content = `<p style="color: var(--accent-danger);">文章内容加载失败，请稍后重试</p>`;
+            }
+        }
         
         const authorHtml = article.author ? `
             <div class="article-author" style="margin-bottom: var(--spacing-lg);">
@@ -387,9 +397,9 @@ class ArticlesModule {
         const modal = document.createElement('div');
         modal.className = 'article-modal';
         modal.innerHTML = `
-            <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+            <div class="modal-overlay"></div>
             <div class="modal-content">
-                <button class="modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                <button class="modal-close">×</button>
                 <div class="modal-header">
                     <span class="article-tag">${article.tag}</span>
                     <span class="article-date">${article.date}</span>
@@ -400,6 +410,18 @@ class ArticlesModule {
             </div>
         `;
         document.body.appendChild(modal);
+
+        document.body.style.overflow = 'hidden';
+
+        modal.querySelector('.modal-overlay').addEventListener('click', () => {
+            modal.remove();
+            document.body.style.overflow = '';
+        });
+
+        modal.querySelector('.modal-close').addEventListener('click', () => {
+            modal.remove();
+            document.body.style.overflow = '';
+        });
 
         setTimeout(() => {
             if (window.renderMathInElement) {
@@ -413,9 +435,11 @@ class ArticlesModule {
         }, 100);
 
         setTimeout(() => {
-            document.querySelectorAll('.modal-body pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
+            if (window.hljs) {
+                modal.querySelectorAll('.modal-body pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
         }, 150);
     }
 }
