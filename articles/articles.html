@@ -1,0 +1,37 @@
+<div class="articles-wrapper">
+    <div class="articles-header">
+        <h1>技术文章</h1>
+        <p class="subtitle">分享电力电子领域的技术文章和设计经验</p>
+    </div>
+
+    <div class="articles-filters">
+        <div class="filter-group">
+            <button class="filter-btn active" data-category="all">全部</button>
+            <button class="filter-btn" data-category="topology">电路拓扑</button>
+            <button class="filter-btn" data-category="power">功率变换</button>
+            <button class="filter-btn" data-category="magnetic">磁性元件</button>
+            <button class="filter-btn" data-category="control">控制策略</button>
+            <button class="filter-btn" data-category="thermal">热设计</button>
+        </div>
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="搜索文章...">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="articles-grid"></div>
+
+    <div class="pagination-container">
+        <div class="pagination-info"></div>
+        <div class="pagination">
+            <button class="pagination-btn prev-btn" disabled>上一页</button>
+            <div class="pagination-numbers"></div>
+            <button class="pagination-btn next-btn">下一页</button>
+        </div>
+    </div>
+</div>

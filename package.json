@@ -1,0 +1,28 @@
+{
+  "name": "powercalc",
+  "version": "1.0.0",
+  "description": "**电力电子电路参数自动计算工具 | 前端在线计算平台**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "http-server -p 8080",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MAYU1110/powercalc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MAYU1110/powercalc/issues"
+  },
+  "homepage": "https://github.com/MAYU1110/powercalc#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

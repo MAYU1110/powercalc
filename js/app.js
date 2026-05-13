@@ -23,7 +23,7 @@ const App = {
         Router.register('topology', () => this.loadPage('topology'));
         Router.register('convert', () => this.loadPage('convert'));
         Router.register('power', () => this.loadPage('power'));
-        Router.register('loss', () => this.loadPage('loss'));
+        Router.register('articles', () => this.loadPage('articles'));
         Router.register('more', () => this.loadPage('more'));
     },
 
@@ -40,8 +40,8 @@ const App = {
                 await this.loadConvertTool();
             } else if (pageName === 'power') {
                 this.loadPowerTool();
-            } else if (pageName === 'loss') {
-                this.loadLossTool();
+            } else if (pageName === 'articles') {
+                this.loadArticlesTool();
             } else if (pageName === 'more') {
                 pageEl.innerHTML = `
                     <div class="container" style="padding-top: var(--spacing-xl);">
@@ -103,13 +103,15 @@ const App = {
             <div class="container">
                 <div class="footer-top">
                     <div class="footer-brand">
-                        <div class="footer-logo">
-                            <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"/></svg>
-                        </div>
-                        <div class="footer-info">
-                            <h3>PowerCalc</h3>
-                            <p>专业电力电子电路设计工具</p>
-                        </div>
+                        <a href="#home" class="footer-logo-link">
+                            <div class="footer-logo">
+                                <svg viewBox="0 0 24 24"><path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"/></svg>
+                            </div>
+                            <div class="footer-info">
+                                <h3>PowerCalc</h3>
+                                <p>专业电力电子电路设计工具</p>
+                            </div>
+                        </a>
                     </div>
                     <div class="footer-nav">
                         <div class="footer-col">
@@ -118,7 +120,7 @@ const App = {
                                 <li><a href="#home">首页</a></li>
                                 <li><a href="#topology">电路拓扑设计</a></li>
                                 <li><a href="#convert">单位换算</a></li>
-                                <li><a href="#loss">损耗估算</a></li>
+                                <li><a href="#articles">技术文章</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">
@@ -185,7 +187,7 @@ const App = {
                         </div>
                     </div>
                     <div class="footer-copyright">
-                        <p>© 2023-2025 PowerCalc.cn 版权所有.</p>
+                        <p>© 2023-2026 PowerCalc.cn 版权所有.</p>
                     </div>
                 </div>
             </div>
@@ -272,12 +274,12 @@ const App = {
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">P=U×I等功率相关计算</p>
                             </div>
                         </a>
-                        <a href="#loss" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
+                        <a href="#articles" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
                             <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                                 <svg width="28" height="28" fill="var(--accent-warning)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                             </div>
                             <div>
-                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-xs);">损耗估算</h3>
+                                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-xs);">技术文章</h3>
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">DC-DC转换器损耗分析</p>
                             </div>
                         </a>
@@ -621,39 +623,73 @@ const App = {
         document.getElementById('ohms-result').style.display = 'block';
     },
 
-    async loadLossTool() {
-        const pageEl = document.querySelector('[data-page="loss"]');
+    async loadArticlesTool() {
+        const pageEl = document.querySelector('[data-page="articles"]');
         if (!pageEl) return;
 
         if (pageEl.innerHTML.trim() === '') {
             try {
-                const response = await fetch('tool/loss_estimation/loss_estimation.html');
+                const response = await fetch('articles/articles.html');
                 if (response.ok) {
                     const html = await response.text();
                     pageEl.innerHTML = html;
 
-                    document.querySelectorAll('link[href*="tool/"]').forEach(link => link.remove());
-                    document.querySelectorAll('script[src*="tool/"]').forEach(script => script.remove());
+                    document.querySelectorAll('link[href*="articles/"]').forEach(link => link.remove());
+                    document.querySelectorAll('script[src*="articles/"]').forEach(script => script.remove());
 
                     const link = document.createElement('link');
                     link.rel = 'stylesheet';
-                    link.href = 'tool/loss_estimation/loss_estimation.css';
+                    link.href = 'articles/articles.css';
                     document.head.appendChild(link);
 
-                    const script = document.createElement('script');
-                    script.src = 'tool/loss_estimation/loss_estimation.js';
-                    script.onload = () => {
-                        if (window.loss_estimationInit) {
-                            window.loss_estimationInit();
-                        }
+                    const loadScript = (src) => {
+                        return new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = src;
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.body.appendChild(script);
+                        });
                     };
-                    document.body.appendChild(script);
+
+                    const loadCSS = (href) => {
+                        return new Promise((resolve, reject) => {
+                            const link = document.createElement('link');
+                            link.rel = 'stylesheet';
+                            link.href = href;
+                            link.onload = resolve;
+                            link.onerror = reject;
+                            document.head.appendChild(link);
+                        });
+                    };
+
+                    try {
+                        await loadScript('https://cdn.jsdelivr.net/npm/marked/marked.min.js');
+                        await loadCSS('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css');
+                        await loadScript('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js');
+                        await loadScript('https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js');
+                        await loadCSS('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css');
+                        await loadScript('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js');
+                        await loadScript('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js');
+                        await loadScript('https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js');
+                        
+                        const script = document.createElement('script');
+                        script.src = 'articles/articles.js';
+                        script.onload = () => {
+                            if (window.ArticlesModule) {
+                                new window.ArticlesModule();
+                            }
+                        };
+                        document.body.appendChild(script);
+                    } catch (error) {
+                        console.error('加载依赖失败:', error);
+                    }
                 } else {
-                    pageEl.innerHTML = this.getPlaceholderContent('损耗估算');
+                    pageEl.innerHTML = this.getPlaceholderContent('技术文章');
                 }
             } catch (e) {
-                console.error('Failed to load loss estimation module:', e);
-                pageEl.innerHTML = this.getPlaceholderContent('损耗估算');
+                console.error('Failed to load articles module:', e);
+                pageEl.innerHTML = this.getPlaceholderContent('技术文章');
             }
         }
 
@@ -734,9 +770,27 @@ const App = {
         `;
     },
 
-    setupModuleLoader() {}
+    setupModuleLoader() {},
+
+    setupBackToTop() {
+        const backToTopBtn = document.getElementById('back-to-top');
+        if (!backToTopBtn) return;
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
+    App.setupBackToTop();
 });
