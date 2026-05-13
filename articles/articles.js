@@ -302,16 +302,15 @@ class ArticlesModule {
         this.currentPage = 1;
         this.renderPagination();
         
-        // 如果筛选结果为空且不是"全部"，显示空状态
+        const emptyState = document.querySelector('.articles-grid .empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+
         if (category !== 'all' && this.filteredArticles.length === 0) {
             this.showEmptyState();
         } else {
-            // 如果当前是从空状态切换回来，需要重新渲染文章
-            if (!document.querySelector('.article-card')) {
-                this.renderArticles();
-            } else {
-                this.showPage(1);
-            }
+            this.showPage(1);
         }
     }
 
@@ -319,7 +318,13 @@ class ArticlesModule {
         const articlesGrid = document.querySelector('.articles-grid');
         if (!articlesGrid) return;
         
-        articlesGrid.innerHTML = `
+        if (this.allArticles) {
+            this.allArticles.forEach(article => {
+                article.style.display = 'none';
+            });
+        }
+
+        articlesGrid.insertAdjacentHTML('beforeend', `
             <div class="empty-state">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"/>
@@ -329,9 +334,8 @@ class ArticlesModule {
                 <h3>暂无文章</h3>
                 <p>该分类下暂无文章，请选择其他分类</p>
             </div>
-        `;
+        `);
         
-        // 隐藏分页
         const paginationContainer = document.querySelector('.pagination-container');
         if (paginationContainer) {
             paginationContainer.style.display = 'none';
