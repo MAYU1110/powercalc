@@ -18,7 +18,7 @@ date: "2026-05-15"        # 必填，格式：YYYY-MM-DD
 readTime: "10分钟"         # 必填，预估阅读时间
 author: "作者名"           # 选填，作者姓名
 email: "author@example.com" # 选填，作者邮箱
-cover: "images/articles/buck.png"  # 可选，封面图路径
+cover: "articles/image/cover.png"  # 选填，封面图路径（绝对路径）
 ---
 ```
 
@@ -70,9 +70,28 @@ $$ P = \frac{V^2}{R} $$
 
 ### 4. 图片引用
 
+文章图片存放在 `articles/image/` 目录下，分为两种用法：
+
+**封面图**（用于文章列表卡片显示）：
+- 在 frontmatter 的 `cover` 字段中指定
+- 使用绝对路径：`articles/image/your-cover.png`
+
 ```markdown
-![图片说明](images/articles/your-image.png)
+---
+title: "文章标题"
+cover: "articles/image/buck-boost-cover.png"
+---
 ```
+
+**正文图**（在文章内容中显示）：
+- 在正文中使用相对路径引用
+- 格式：`./image/your-image.png`
+
+```markdown
+![正文图片说明](./image/your-image.png)
+```
+
+> **注意**：封面图和正文图的路径写法不同，请勿混淆！
 
 ## 三、示例文章
 
@@ -85,7 +104,7 @@ date: "2026-05-15"
 readTime: "12分钟"
 author: "作者名"
 email: "author@example.com"
-cover: "images/articles/buck-boost.png"
+cover: "articles/image/buckboost-cover.png"
 ---
 
 # 深入理解Buck-Boost转换器
@@ -93,6 +112,8 @@ cover: "images/articles/buck-boost.png"
 ## 一、概述
 
 Buck-Boost转换器是一种常见的DC-DC拓扑，可以实现电压的升降压转换。
+
+![buck-boost拓扑图](./image/buckboost_topology.png)
 
 ## 二、工作原理
 
@@ -124,8 +145,10 @@ Buck-Boost转换器适用于需要宽输入电压范围的场合。
 ## 四、注意事项
 
 1. **文件编码**：必须使用 UTF-8 编码
-2. **图片尺寸**：封面图建议 400×200 像素
-3. **图片路径**：封面图放在 `images/articles/` 目录下
+2. **图片路径**：
+   - 封面图：在 frontmatter 中使用 `articles/image/xxx.png`
+   - 正文图：在正文中使用 `./image/xxx.png`
+3. **图片尺寸**：封面图建议 400×200 像素
 4. **公式语法**：使用标准 LaTeX 语法，KaTeX 会自动渲染
 5. **分类一致性**：category 值必须与 filter 按钮一致
 6. **摘要长度**：建议摘要不超过 150 字
@@ -134,5 +157,5 @@ Buck-Boost转换器适用于需要宽输入电压范围的场合。
 
 1. 在 `articles/article/` 目录创建 `.md` 文件
 2. 添加元数据和文章内容
-3. 如需封面图，上传到 `images/articles/`
-4. 刷新页面即可看到新文章（系统会自动扫描文件夹）
+3. 如需封面图，上传到 `articles/image/`
+4. 刷新页面即可看到新文章

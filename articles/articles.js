@@ -46,6 +46,9 @@ class ArticlesModule {
                     article.readTime = articleMeta.readTime || article.readTime;
                     article.author = articleMeta.author || article.author;
                     article.email = articleMeta.email || article.email;
+                    if (articleMeta.cover) {
+                        article.cover = articleMeta.cover.replace(/^\.\/image\//, 'articles/image/').replace(/^image\//, 'articles/image/');
+                    }
                     this.allArticlesData.push(article);
                 } catch (error) {
                     console.error('加载文章失败:', articleMeta.fileName, error);
@@ -78,7 +81,17 @@ class ArticlesModule {
         }
 
         const firstImageMatch = content.match(/!\[.*?\]\((.*?)\)/);
-        const firstImage = firstImageMatch ? firstImageMatch[1] : null;
+        let firstImage = firstImageMatch ? firstImageMatch[1] : null;
+        if (firstImage) {
+            firstImage = firstImage.replace(/^\.\/image\//, 'articles/image/');
+            firstImage = firstImage.replace(/^image\//, 'articles/image/');
+        }
+
+        let coverImage = meta.cover || firstImage;
+        if (coverImage) {
+            coverImage = coverImage.replace(/^\.\/image\//, 'articles/image/');
+            coverImage = coverImage.replace(/^image\//, 'articles/image/');
+        }
 
         return {
             title: meta.title || '未命名文章',
@@ -88,7 +101,7 @@ class ArticlesModule {
             readTime: meta.readTime || '5分钟',
             author: meta.author || '',
             email: meta.email || '',
-            cover: meta.cover || firstImage,
+            cover: coverImage,
             content: content,
             excerpt: this.extractExcerpt(content)
         };
@@ -395,6 +408,9 @@ class ArticlesModule {
                 var content = `<p style="color: var(--accent-danger);">文章内容加载失败，请稍后重试</p>`;
             }
         }
+
+        content = content.replace(/src="\.\/image\//g, 'src="articles/image/');
+        content = content.replace(/src="image\//g, 'src="articles/image/');
         
         const authorInfoHtml = (article.author || article.email) ? `
             <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-lg);">

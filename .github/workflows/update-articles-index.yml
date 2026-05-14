@@ -36,7 +36,7 @@ jobs:
               const metaMatch = content.match(/^---\n([\s\S]*?)\n---/);
 
               if (!metaMatch) {
-                return { fileName, title: '未命名文章', category: 'other', tag: '其他', date: new Date().toISOString().split('T')[0], readTime: '5分钟', author: '', email: '' };
+                return { fileName, title: '未命名文章', category: 'other', tag: '其他', date: new Date().toISOString().split('T')[0], readTime: '5分钟', author: '', email: '', cover: '' };
               }
 
               const meta = {};
@@ -55,7 +55,8 @@ jobs:
                 date: meta.date || new Date().toISOString().split('T')[0],
                 readTime: meta.readTime || '5分钟',
                 author: meta.author || '',
-                email: meta.email || ''
+                email: meta.email || '',
+                cover: meta.cover || ''
               };
             });
 

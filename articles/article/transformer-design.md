@@ -6,6 +6,7 @@ date: "2026-05-08"
 readTime: "10分钟"
 author: "王五"
 email: "wangwu@example.com"
+cover: "articles/image/co.png"
 ---
 
 
@@ -13,7 +14,7 @@ email: "wangwu@example.com"
 ## 一、设计流程
 
 高频变压器设计的一般流程：
-
+![asdf](articles/iamge/buck_topology.png)
 1. 确定技术指标
 2. 选择磁芯材料
 3. 计算匝数比

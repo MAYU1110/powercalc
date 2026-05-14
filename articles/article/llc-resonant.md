@@ -6,6 +6,7 @@ date: "2026-05-10"
 readTime: "15分钟"
 author: "李四"
 email: "lisi@example.com"
+cover: "articles/image/co.png"
 ---
 
 
@@ -43,6 +44,9 @@ $$ L_r = \frac{V_{in(min)} \cdot D_{max}}{2 \cdot f_s \cdot \Delta I_{Lr}} $$
 ### 3.2 励磁电感设计
 
 励磁电感通常取谐振电感的5-20倍：
+
+![图片说明](./image/buck.png)
+
 
 $$ L_m = (5 \sim 20) \cdot L_r $$
 
