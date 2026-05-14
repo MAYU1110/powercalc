@@ -4,9 +4,11 @@ category: "magnetic"
 tag: "磁性元件"
 date: "2026-05-08"
 readTime: "10分钟"
+author: "王五"
+email: "wangwu@example.com"
 ---
 
-# 高频变压器设计要点与磁芯选型指南
+
 
 ## 一、设计流程
 

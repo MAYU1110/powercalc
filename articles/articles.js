@@ -13,25 +13,50 @@ class ArticlesModule {
     }
 
     async loadArticlesFromMarkdown() {
-        const articlesList = [
-            'buck-boost-intro.md',
-            'llc-resonant.md',
-            'transformer-design.md'
-        ];
-
-        for (const fileName of articlesList) {
-            try {
-                const response = await fetch(`articles/article/${fileName}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const markdown = await response.text();
-                const article = this.parseMarkdown(markdown);
-                article.fileName = fileName;
-                this.allArticlesData.push(article);
-            } catch (error) {
-                console.error('加载文章失败:', fileName, error);
+        try {
+            const dirResponse = await fetch('articles/article/');
+            if (!dirResponse.ok) {
+                throw new Error(`无法访问文章目录: ${dirResponse.status}`);
             }
+            const dirHtml = await dirResponse.text();
+            
+            const mdFileRegex = /href="([^"]+\.md)"/g;
+            const articlesList = [];
+            let match;
+            
+            while ((match = mdFileRegex.exec(dirHtml)) !== null) {
+                const fullPath = match[1];
+                const fileName = fullPath.split('/').pop();
+                if (fileName && fileName.endsWith('.md')) {
+                    articlesList.push(fileName);
+                }
+            }
+            
+            if (articlesList.length === 0) {
+                console.warn('未找到任何文章文件，目录HTML:', dirHtml.substring(0, 500));
+                this.renderArticles();
+                return;
+            }
+            
+            console.log('找到的文章列表:', articlesList);
+            
+            for (const fileName of articlesList) {
+                try {
+                    const response = await fetch(`articles/article/${fileName}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const markdown = await response.text();
+                    
+                    const article = this.parseMarkdown(markdown);
+                    article.fileName = fileName;
+                    this.allArticlesData.push(article);
+                } catch (error) {
+                    console.error('加载文章失败:', fileName, error);
+                }
+            }
+        } catch (error) {
+            console.error('扫描文章目录失败:', error);
         }
 
         this.renderArticles();
@@ -66,7 +91,7 @@ class ArticlesModule {
             date: meta.date || new Date().toISOString().split('T')[0],
             readTime: meta.readTime || '5分钟',
             author: meta.author || '',
-            contact: meta.contact || '',
+            email: meta.email || '',
             cover: meta.cover || firstImage,
             content: content,
             excerpt: this.extractExcerpt(content)
@@ -103,16 +128,6 @@ class ArticlesModule {
                 ? `<img src="${article.cover}" alt="${article.title}">`
                 : this.generateDefaultCover(article.tag, article.category);
             
-            const authorHtml = article.author ? `
-                <div class="article-author">
-                    <div class="author-avatar">${article.author.charAt(0)}</div>
-                    <div class="author-info">
-                        <div class="author-name">${article.author}</div>
-                        ${article.contact ? `<div class="author-contact">${article.contact}</div>` : ''}
-                    </div>
-                </div>
-            ` : '';
-            
             return `
                 <article class="article-card glass-card" data-category="${article.category}" data-index="${index}">
                     <div class="article-image-wrapper">
@@ -125,7 +140,6 @@ class ArticlesModule {
                         </div>
                         <h2 class="article-title">${article.title}</h2>
                         <p class="article-excerpt">${article.excerpt}</p>
-                        ${authorHtml}
                         <div class="article-footer">
                             <span class="read-time">阅读时间：${article.readTime}</span>
                             <button class="read-more" data-index="${index}">阅读全文</button>
@@ -171,6 +185,13 @@ class ArticlesModule {
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('read-more')) {
                 const index = parseInt(e.target.dataset.index);
+                this.openArticleDetail(index);
+            }
+            
+            // 点击文章卡片任意位置打开详情
+            const articleCard = e.target.closest('.article-card');
+            if (articleCard && !e.target.classList.contains('read-more')) {
+                const index = parseInt(articleCard.dataset.index);
                 this.openArticleDetail(index);
             }
         });
@@ -266,11 +287,12 @@ class ArticlesModule {
         const start = (pageNumber - 1) * this.articlesPerPage;
         const end = start + this.articlesPerPage;
         
+        // 获取当前页要显示的文章索引数组
+        const currentPageArticles = articles.slice(start, end);
+        
         // 只显示当前页的文章
-        articles.forEach((article, index) => {
-            if (index >= start && index < end) {
-                article.style.display = 'block';
-            }
+        currentPageArticles.forEach(article => {
+            article.style.display = 'block';
         });
         
         // 恢复分页显示
@@ -326,13 +348,7 @@ class ArticlesModule {
 
         articlesGrid.insertAdjacentHTML('beforeend', `
             <div class="empty-state">
-                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M20 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                    <path d="M12 14v6"/>
-                </svg>
-                <h3>暂无文章</h3>
-                <p>该分类下暂无文章，请选择其他分类</p>
+                <p>暂无文章</p>
             </div>
         `);
         
@@ -384,13 +400,10 @@ class ArticlesModule {
             }
         }
         
-        const authorHtml = article.author ? `
-            <div class="article-author" style="margin-bottom: var(--spacing-lg);">
-                <div class="author-avatar">${article.author.charAt(0)}</div>
-                <div class="author-info">
-                    <div class="author-name">作者：${article.author}</div>
-                    ${article.contact ? `<div class="author-contact">联系方式：${article.contact}</div>` : ''}
-                </div>
+        const authorInfoHtml = (article.author || article.email) ? `
+            <div style="text-align: center; font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--spacing-lg);">
+                ${article.author ? `<span>作者：${article.author}</span>` : ''}
+                ${article.email ? `<span> | 邮箱：${article.email}</span>` : ''}
             </div>
         ` : '';
         
@@ -404,8 +417,8 @@ class ArticlesModule {
                     <span class="article-tag">${article.tag}</span>
                     <span class="article-date">${article.date}</span>
                 </div>
-                <h1>${article.title}</h1>
-                ${authorHtml}
+                <h1 style="text-align: center;">${article.title}</h1>
+                ${authorInfoHtml}
                 <div class="modal-body">${content}</div>
             </div>
         `;

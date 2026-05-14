@@ -16,6 +16,8 @@ category: "topology"       # 必填，分类标识
 tag: "电路拓扑"            # 必填，显示标签
 date: "2026-05-15"        # 必填，格式：YYYY-MM-DD
 readTime: "10分钟"         # 必填，预估阅读时间
+author: "作者名"           # 选填，作者姓名
+email: "author@example.com" # 选填，作者邮箱
 cover: "images/articles/buck.png"  # 可选，封面图路径
 ---
 ```
@@ -81,6 +83,8 @@ category: "topology"
 tag: "电路拓扑"
 date: "2026-05-15"
 readTime: "12分钟"
+author: "作者名"
+email: "author@example.com"
 cover: "images/articles/buck-boost.png"
 ---
 
@@ -128,8 +132,7 @@ Buck-Boost转换器适用于需要宽输入电压范围的场合。
 
 ## 五、新增文章步骤
 
-1. 在 `articles/` 目录创建 `.md` 文件
+1. 在 `articles/article/` 目录创建 `.md` 文件
 2. 添加元数据和文章内容
 3. 如需封面图，上传到 `images/articles/`
-4. 在 `tool/tech_articles/tech_articles.js` 的 `articlesList` 数组中添加文件名
-5. 刷新页面即可看到新文章
+4. 刷新页面即可看到新文章（系统会自动扫描文件夹）

@@ -456,6 +456,23 @@
     color: var(--text-muted);
 }
 
+/* 空状态样式 */
+.empty-state {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3xl) var(--spacing-lg);
+    text-align: center;
+}
+
+.empty-state p {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .articles-filters {
         flex-direction: column;

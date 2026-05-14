@@ -4,9 +4,11 @@ category: "topology"
 tag: "电路拓扑"
 date: "2026-05-10"
 readTime: "15分钟"
+author: "李四"
+email: "lisi@example.com"
 ---
 
-# LLC谐振变换器设计与优化技巧
+
 
 ## 一、引言
 
