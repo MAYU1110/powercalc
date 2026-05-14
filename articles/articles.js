@@ -14,49 +14,45 @@ class ArticlesModule {
 
     async loadArticlesFromMarkdown() {
         try {
-            const dirResponse = await fetch('articles/article/');
-            if (!dirResponse.ok) {
-                throw new Error(`无法访问文章目录: ${dirResponse.status}`);
+            const indexResponse = await fetch('articles/article/index.json');
+            if (!indexResponse.ok) {
+                throw new Error(`无法访问文章索引: ${indexResponse.status}`);
             }
-            const dirHtml = await dirResponse.text();
-            
-            const mdFileRegex = /href="([^"]+\.md)"/g;
-            const articlesList = [];
-            let match;
-            
-            while ((match = mdFileRegex.exec(dirHtml)) !== null) {
-                const fullPath = match[1];
-                const fileName = fullPath.split('/').pop();
-                if (fileName && fileName.endsWith('.md')) {
-                    articlesList.push(fileName);
-                }
-            }
-            
+            const indexData = await indexResponse.json();
+            const articlesList = indexData.articles || [];
+
             if (articlesList.length === 0) {
-                console.warn('未找到任何文章文件，目录HTML:', dirHtml.substring(0, 500));
+                console.warn('未找到任何文章文件');
                 this.renderArticles();
                 return;
             }
-            
-            console.log('找到的文章列表:', articlesList);
-            
-            for (const fileName of articlesList) {
+
+            console.log('找到的文章列表:', articlesList.map(a => a.fileName));
+
+            for (const articleMeta of articlesList) {
                 try {
-                    const response = await fetch(`articles/article/${fileName}`);
+                    const response = await fetch(`articles/article/${articleMeta.fileName}`);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     const markdown = await response.text();
-                    
+
                     const article = this.parseMarkdown(markdown);
-                    article.fileName = fileName;
+                    article.fileName = articleMeta.fileName;
+                    article.title = articleMeta.title || article.title;
+                    article.category = articleMeta.category || article.category;
+                    article.tag = articleMeta.tag || article.tag;
+                    article.date = articleMeta.date || article.date;
+                    article.readTime = articleMeta.readTime || article.readTime;
+                    article.author = articleMeta.author || article.author;
+                    article.email = articleMeta.email || article.email;
                     this.allArticlesData.push(article);
                 } catch (error) {
-                    console.error('加载文章失败:', fileName, error);
+                    console.error('加载文章失败:', articleMeta.fileName, error);
                 }
             }
         } catch (error) {
-            console.error('扫描文章目录失败:', error);
+            console.error('加载文章索引失败:', error);
         }
 
         this.renderArticles();

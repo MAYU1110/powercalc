@@ -1,0 +1,75 @@
+name: Update Articles Index
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'articles/article/**/*.md'
+  workflow_dispatch:
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Generate articles index
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+
+            const articlesDir = 'articles/article';
+            const files = fs.readdirSync(articlesDir).filter(f => f.endsWith('.md'));
+
+            const articles = files.map(fileName => {
+              const content = fs.readFileSync(path.join(articlesDir, fileName), 'utf-8');
+              const metaMatch = content.match(/^---\n([\s\S]*?)\n---/);
+
+              if (!metaMatch) {
+                return { fileName, title: '未命名文章', category: 'other', tag: '其他', date: new Date().toISOString().split('T')[0], readTime: '5分钟', author: '', email: '' };
+              }
+
+              const meta = {};
+              metaMatch[1].split('\n').forEach(line => {
+                const [key, ...valueParts] = line.split(':');
+                if (key && valueParts.length > 0) {
+                  meta[key.trim()] = valueParts.join(':').trim().replace(/[\"\']/g, '');
+                }
+              });
+
+              return {
+                fileName,
+                title: meta.title || '未命名文章',
+                category: meta.category || 'other',
+                tag: meta.tag || '其他',
+                date: meta.date || new Date().toISOString().split('T')[0],
+                readTime: meta.readTime || '5分钟',
+                author: meta.author || '',
+                email: meta.email || ''
+              };
+            });
+
+            articles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const indexJson = JSON.stringify({ articles }, null, 2);
+            fs.writeFileSync(path.join(articlesDir, 'index.json'), indexJson, 'utf-8');
+            console.log('Generated index.json with', articles.length, 'articles');
+          "
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add articles/article/index.json
+          git diff --staged --quiet || git commit -m "ci: Auto-update articles index"
+          git push

@@ -1,0 +1,24 @@
+{
+  "articles": [
+    {
+      "fileName": "llc-resonant.md",
+      "title": "LLC谐振变换器设计与优化技巧",
+      "category": "topology",
+      "tag": "电路拓扑",
+      "date": "2026-05-10",
+      "readTime": "15分钟",
+      "author": "李四",
+      "email": "lisi@example.com"
+    },
+    {
+      "fileName": "transformer-design.md",
+      "title": "高频变压器设计要点与磁芯选型指南",
+      "category": "magnetic",
+      "tag": "磁性元件",
+      "date": "2026-05-08",
+      "readTime": "10分钟",
+      "author": "王五",
+      "email": "wangwu@example.com"
+    }
+  ]
+}
