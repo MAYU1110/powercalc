@@ -183,7 +183,7 @@ const App = {
                         </div>
                         <div class="legal-item">
                             <img src="image/qrcode/gongan.png" width="16" height="16" alt="公安备案" style="margin-right: 4px;" />
-                            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=11000000000000" target="_blank" rel="noreferrer" style="color: var(--text-secondary);">京公网安备xxxxxxxxxxxx号</a>
+                            <a href="https://beian.mps.gov.cn/#/query/webSearch?code=35020602003678" target="_blank" rel="noreferrer" style="color: var(--text-secondary);">闽公网安备35020602003678号</a>
                         </div>
                     </div>
                     <div class="footer-copyright">
