@@ -1,6 +1,6 @@
 ---
 title: "为什么做PowerCalc"
-category: "其他"
+category: "other"
 tag: "其他"
 date: "2026-05-16"
 readTime: "5分钟"

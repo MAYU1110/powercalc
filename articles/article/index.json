@@ -1,6 +1,17 @@
 {
   "articles": [
     {
+      "fileName": "introduce.md",
+      "title": "为什么做PowerCalc",
+      "category": "其他",
+      "tag": "其他",
+      "date": "2026-05-16",
+      "readTime": "5分钟",
+      "author": "powercalc",
+      "email": "powercalc@powercalc.cn",
+      "cover": "articles/image/powercalc.png"
+    },
+    {
       "fileName": "llc-resonant.md",
       "title": "LLC谐振变换器设计与优化技巧",
       "category": "topology",
