@@ -140,13 +140,13 @@ const Boost = {
             return;
         }
 
-        const d = 1 - (vin / vout);
-        const t = 1 / (f * 1000);
-        const l = (vin / (ki * f * 1000 * io)) * (1 - (vin / vout));
-        const deltaU = vout * ku;
-        const c1 = (vin / (8 * Math.pow(f * 1000, 2) * l * ku * vout)) * (1 - (vin / vout));
-        const c2 = (io / (f * 1000 * ku * vout)) * (1 - (vin / vout));
-        const r = vout / io;
+        const d = Number((1 - (vin / vout)).toFixed(5));
+        const t = Number((1 / (f * 1000)).toFixed(10));
+        const l = Number(((vin / (ki * f * 1000 * io)) * (1 - (vin / vout))).toFixed(8));
+        const deltaU = Number((vout * ku).toFixed(5));
+        const c1 = Number(((vin / (8 * Math.pow(f * 1000, 2) * l * ku * vout)) * (1 - (vin / vout))).toFixed(8));
+        const c2 = Number(((io / (f * 1000 * ku * vout)) * (1 - (vin / vout))).toFixed(8));
+        const r = Number((vout / io).toFixed(5));
 
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {

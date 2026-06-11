@@ -135,17 +135,17 @@ const BuckBoost = {
         }
 
         const eta = 1;
-        const d = vout / (vout + vin / eta);
-        const t = 1 / (f * 1000);
-        const il = io / (1 - d);
-        const deltaIl = ki * il;
-        const l = (vin * d * t) / deltaIl;
-        const deltaU = vout * ku;
-        const c = (io * (1 - d) * t) / deltaU;
-        const r = vout / io;
-        const lCrit = Math.pow(1 - d, 2) * r * t / 2;
-        const pout = vout * io;
-        const pin = pout / eta;
+        const d = Number((vout / (vout + vin / eta)).toFixed(5));
+        const t = Number((1 / (f * 1000)).toFixed(10));
+        const il = Number((io / (1 - d)).toFixed(5));
+        const deltaIl = Number((ki * il).toFixed(5));
+        const l = Number(((vin * d * t) / deltaIl).toFixed(8));
+        const deltaU = Number((vout * ku).toFixed(5));
+        const c = Number(((io * (1 - d) * t) / deltaU).toFixed(8));
+        const r = Number((vout / io).toFixed(5));
+        const lCrit = Number((Math.pow(1 - d, 2) * r * t / 2).toFixed(8));
+        const pout = Number((vout * io).toFixed(5));
+        const pin = Number((pout / eta).toFixed(5));
 
         const resultsSection = document.getElementById('results-section');
         if (resultsSection) {

@@ -140,25 +140,25 @@ const Buck = {
         }
 
         // 占空比
-        const d = vout / vin;
+        const d = Number((vout / vin).toFixed(5));
 
         // 最小负载电流
-        const iomin = io * ki;
+        const iomin = Number((io * ki).toFixed(5));
 
         // 周期
-        const t = 1 / (f * 1000); // 转换为秒
+        const t = Number((1 / (f * 1000)).toFixed(10)); // 转换为秒
 
         // 电感
-        const l = ((vin - vout) * d * t) / iomin;
+        const l = Number((((vin - vout) * d * t) / iomin).toFixed(8));
 
         // 纹波电压
-        const deltaU = vout * ku;
+        const deltaU = Number((vout * ku).toFixed(5));
 
         // 电容
-        const c = (vin * d * (1 - d) * t * t) / (8 * l * deltaU);
+        const c = Number(((vin * d * (1 - d) * t * t) / (8 * l * deltaU)).toFixed(8));
 
         // 负载
-        const r = vout / io;
+        const r = Number((vout / io).toFixed(5));
 
         // 显示计算结果
         const resultsSection = document.getElementById('results-section');
