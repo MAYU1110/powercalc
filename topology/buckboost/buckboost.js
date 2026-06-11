@@ -134,7 +134,7 @@ const BuckBoost = {
             return;
         }
 
-        const eta = 0.9;
+        const eta = 1;
         const d = vout / (vout + vin / eta);
         const t = 1 / (f * 1000);
         const il = io / (1 - d);
