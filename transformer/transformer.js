@@ -474,11 +474,14 @@ const Transformer = {
         const Pcu = (Pcu_primary * skinEffectP) + (Pcu_secondary * skinEffectS);
 
         // 铁耗计算（Steinmetz 公式近似）
-        // Pcore = K * f^α * B^β * Ve
-        const K = 0.001;  // 材料系数（铁氧体典型值）
+        // Pcore = K * f^α * B^β * Ve (单位: W)
+        // K: 材料系数，与损耗密度 (kW/m³) 相关
+        // 典型铁氧体损耗：100kHz/200mT 时约 100-300 kW/m³
+        const K = 0.02;  // 铁氧体材料系数（综合常见材料取值）
         const alpha = 1.3;  // 频率指数
-        const beta = 2.5;   // 磁通密度指数
-        const Pcore = K * Math.pow(fs_kHz, alpha) * Math.pow(Bac * 1000, beta) * Ve_cm3 / 1000;  // W
+        const beta = 2.7;   // 磁通密度指数
+        // Bac 单位 T，Ve_cm3 单位 cm³
+        const Pcore = K * Math.pow(fs_kHz, alpha) * Math.pow(Bac, beta) * Ve_cm3;
 
         // 总损耗
         const Ptotal = Pcu + Pcore;
