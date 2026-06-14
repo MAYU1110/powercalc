@@ -1,0 +1,249 @@
+<div class="container" style="padding-top: var(--spacing-xl);">
+    <h1 class="section-title">变压器 AP 法自动设计</h1>
+    <p class="section-subtitle">基于面积乘积(AP)法的变压器自动化设计工具，支持 Flyback/Forward/半桥/全桥/LLC 等拓扑</p>
+
+    <!-- 历史记录下拉 -->
+    <div class="history-bar glass-card" style="padding: var(--spacing-md); margin-bottom: var(--spacing-lg); display: flex; gap: var(--spacing-md); align-items: center;">
+        <span style="color: var(--text-secondary); font-size: 0.875rem;">设计方案：</span>
+        <select id="history-select" class="form-select" style="max-width: 300px; flex: 1;">
+            <option value="">-- 新建设计 --</option>
+        </select>
+        <button onclick="Transformer.deleteCurrentDesign()" class="btn btn-secondary btn-sm" style="padding: var(--spacing-xs) var(--spacing-md);">删除</button>
+    </div>
+
+    <!-- ========== 第一步：选择拓扑 ========== -->
+    <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-md);">第一步：选择变换器拓扑</h3>
+        <select id="topoType" class="form-select" style="max-width: 400px;" onchange="Transformer.onTopologyChange()">
+            <option value="flyback">反激 (Flyback)</option>
+            <option value="forward">正激 (Forward)</option>
+            <option value="halfbridge">半桥 (Half-Bridge)</option>
+            <option value="fullbridge">全桥 (Full-Bridge)</option>
+            <option value="llc">LLC 谐振</option>
+        </select>
+        
+        <!-- 拓扑示意图（选择后自动展示） -->
+        <div id="topology-schematic-container" style="margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid var(--border-default);">
+            <h4 style="font-size: 1rem; font-weight: 600; margin-bottom: var(--spacing-md); color: var(--text-secondary);">📐 拓扑结构示意图</h4>
+            <div id="topology-schematic" style="display: flex; justify-content: center; align-items: center; background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-md);"></div>
+        </div>
+    </div>
+
+    <!-- ========== 第二步：输入设计参数 ========== -->
+    <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: var(--spacing-lg);">第二步：输入设计参数</h3>
+        
+        <!-- 通用参数区域 -->
+        <div class="grid grid-2" style="gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+            <div class="form-group">
+                <label class="form-label">输入电压 Vin <span class="form-unit">(V)</span></label>
+                <input type="number" id="Vin" class="form-input" placeholder="如: 400" step="0.1" value="400">
+            </div>
+            <div class="form-group">
+                <label class="form-label">输出电压 Vout <span class="form-unit">(V)</span></label>
+                <input type="number" id="Vout" class="form-input" placeholder="如: 12" step="0.1" value="12">
+            </div>
+            <div class="form-group">
+                <label class="form-label">满载输出电流 Iout <span class="form-unit">(A)</span></label>
+                <input type="number" id="Iout" class="form-input" placeholder="如: 2.5" step="0.1" value="2.5">
+            </div>
+            <div class="form-group">
+                <label class="form-label">开关频率 fs <span class="form-unit">(kHz)</span></label>
+                <input type="number" id="fs" class="form-input" placeholder="如: 100" step="1" value="100">
+            </div>
+            <div class="form-group">
+                <label class="form-label">预估整机效率 η</label>
+                <input type="number" id="eta" class="form-input" placeholder="如: 0.88" step="0.01" value="0.88">
+                <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.85~0.92</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">最大交流磁通密度 Bmax <span class="form-unit">(T)</span></label>
+                <input type="number" id="Bmax" class="form-input" placeholder="如: 0.28" step="0.01" value="0.28">
+                <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">铁氧体典型值 0.2~0.35T</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">导线电流密度 J <span class="form-unit">(A/mm²)</span></label>
+                <input type="number" id="J" class="form-input" placeholder="如: 4" step="0.1" value="4">
+                <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 3~6 A/mm²</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">窗口利用系数 Kw</label>
+                <input type="number" id="Kw" class="form-input" placeholder="如: 0.35" step="0.01" value="0.35">
+                <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.3~0.4</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">副边整流二极管压降 Vf <span class="form-unit">(V)</span></label>
+                <input type="number" id="Vf" class="form-input" placeholder="如: 0.7" step="0.1" value="0.7">
+                <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">肖特基约 0.5V，快恢复约 0.7V</small>
+            </div>
+            <div class="form-group">
+                <label class="form-label">磁芯材料</label>
+                <select id="coreMaterial" class="form-select">
+                    <option value="3C94">3C94 (低损耗)</option>
+                    <option value="N87">N87 (标准)</option>
+                    <option value="PC40">PC40 (标准)</option>
+                    <option value="3F3">3F3 (高频)</option>
+                    <option value="PC95">PC95 (超低损耗)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ========== 拓扑专属参数区域 ========== -->
+        
+        <!-- Flyback 专属参数 -->
+        <div id="flyback-params" class="topology-specific-params" style="display: none;">
+            <div class="param-group" style="background: rgba(59, 130, 246, 0.05); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-md);">
+                <h4 style="font-size: 1rem; font-weight: 600; color: var(--accent-primary); margin-bottom: var(--spacing-md);">🔧 反激 (Flyback) 专属参数</h4>
+                <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label class="form-label">工作模式</label>
+                        <select id="workMode" class="form-select">
+                            <option value="ccm">连续导通模式 (CCM)</option>
+                            <option value="dcm">断续导通模式 (DCM)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">最大占空比 Dmax</label>
+                        <input type="number" id="Dmax" class="form-input" placeholder="如: 0.45" step="0.01" value="0.45">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.3~0.5</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">反射电压 Vor <span class="form-unit">(V)</span></label>
+                        <input type="number" id="Vor" class="form-input" placeholder="如: 100" step="1" value="100">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">Vor ≈ Vin_max × Dmax / (1-Dmax)</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">目标励磁电感 Lm <span class="form-unit">(μH)</span></label>
+                        <input type="number" id="Lm" class="form-input" placeholder="如: 500" step="1" value="500">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">影响气隙长度计算</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LLC 专属参数 -->
+        <div id="llc-params" class="topology-specific-params" style="display: none;">
+            <div class="param-group" style="background: rgba(16, 185, 129, 0.05); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-md);">
+                <h4 style="font-size: 1rem; font-weight: 600; color: var(--accent-success); margin-bottom: var(--spacing-md);">⚙️ LLC 谐振专属参数</h4>
+                <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label class="form-label">目标电压增益</label>
+                        <input type="number" id="gainTarget" class="form-input" placeholder="如: 1.0" step="0.01" value="1.0">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.9~1.1</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">谐振电感分配比例 Lr/Lp</label>
+                        <input type="number" id="LrRatio" class="form-input" placeholder="如: 0.2" step="0.01" value="0.2">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.1~0.3</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">谐振频率 fr <span class="form-unit">(kHz)</span></label>
+                        <input type="number" id="fr" class="form-input" placeholder="如: 100" step="1" value="100">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">与开关频率 fs 相关</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">品质因数 Q</label>
+                        <input type="number" id="Q" class="form-input" placeholder="如: 0.5" step="0.05" value="0.5">
+                        <small style="color: var(--text-muted); margin-top: var(--spacing-xs); display: block;">典型值 0.3~0.7</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 手动调整区域（计算后可编辑） -->
+        <div id="manual-adjust-section" class="manual-adjust-section" style="display: none;">
+            <div class="param-group" style="background: rgba(245, 158, 11, 0.05); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-md);">
+                <h4 style="font-size: 1rem; font-weight: 600; color: var(--accent-warning); margin-bottom: var(--spacing-md);">✏️ 手动调整参数（用于反向验算）</h4>
+                <div class="grid grid-2" style="gap: var(--spacing-lg);">
+                    <div class="form-group">
+                        <label class="form-label">原边匝数 Np (可修改)</label>
+                        <input type="number" id="Np_manual" class="form-input" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">副边匝数 Ns (可修改)</label>
+                        <input type="number" id="Ns_manual" class="form-input" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">原边线径 AWG (可修改)</label>
+                        <input type="number" id="AWG_p_manual" class="form-input" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">副边线径 AWG (可修改)</label>
+                        <input type="number" id="AWG_s_manual" class="form-input" step="1">
+                    </div>
+                </div>
+                <button onclick="Transformer.verifyVoltage()" class="btn btn-secondary" style="margin-top: var(--spacing-md);">
+                    重新校核输出电压
+                </button>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="display: flex; gap: var(--spacing-md); margin-top: var(--spacing-lg);">
+            <button onclick="Transformer.calculate()" class="btn btn-primary" style="flex: 1; padding: var(--spacing-md); font-size: 1.125rem;">
+                🚀 开始设计
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== 第三步：计算结果展示 ========== -->
+    <div id="results-section" style="display: none;">
+        <!-- 设计概要 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-success);">✓ 整机设计概要</h3>
+            <div id="summary-results"></div>
+        </div>
+
+        <!-- 磁芯选型 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">🧲 磁芯选型结果</h3>
+            <div id="core-results"></div>
+        </div>
+
+        <!-- 匝数匝比参数 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">🔢 匝数匝比参数</h3>
+            <div id="turns-results"></div>
+        </div>
+
+        <!-- 绕组导线设计 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">🔌 绕组导线设计</h3>
+            <div id="wire-results"></div>
+        </div>
+
+        <!-- 反激气隙参数（仅反激显示） -->
+        <div id="airgap-results-container" class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl); display: none;">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">📏 磁芯气隙参数</h3>
+            <div id="airgap-results"></div>
+        </div>
+
+        <!-- 电气校核结果 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">✅ 电气校核结果</h3>
+            <div id="verify-results"></div>
+        </div>
+
+        <!-- 损耗与热评估 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">🔥 损耗与热评估</h3>
+            <div id="loss-results"></div>
+        </div>
+
+        <!-- 安规工艺建议 -->
+        <div class="glass-card" style="padding: var(--spacing-xl); margin-bottom: var(--spacing-xl);">
+            <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg); color: var(--accent-primary);">🛡️ 安规工艺建议</h3>
+            <div id="safety-results"></div>
+        </div>
+
+        <!-- 导出按钮 -->
+        <div style="display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-xl);">
+            <button onclick="Transformer.exportTXT()" class="btn btn-primary" style="flex: 1; padding: var(--spacing-md);">
+                📄 导出 TXT 报告
+            </button>
+            <button onclick="Transformer.exportPDF()" class="btn btn-primary" style="flex: 1; padding: var(--spacing-md);">
+                📑 导出 PDF 报告
+            </button>
+        </div>
+    </div>
+</div>

@@ -22,7 +22,7 @@ const App = {
         Router.register('home', () => this.loadPage('home'));
         Router.register('topology', () => this.loadPage('topology'));
         Router.register('convert', () => this.loadPage('convert'));
-        Router.register('power', () => this.loadPage('power'));
+        Router.register('transformer', () => this.loadPage('transformer'));
         Router.register('articles', () => this.loadPage('articles'));
         Router.register('more', () => this.loadPage('more'));
     },
@@ -38,8 +38,8 @@ const App = {
                 await this.loadTopologyModule('buck');
             } else if (pageName === 'convert') {
                 await this.loadConvertTool();
-            } else if (pageName === 'power') {
-                this.loadPowerTool();
+            } else if (pageName === 'transformer') {
+                await this.loadTransformerTool();
             } else if (pageName === 'articles') {
                 this.loadArticlesTool();
             } else if (pageName === 'more') {
@@ -464,163 +464,50 @@ const App = {
         document.body.appendChild(katexScript);
     },
 
-    loadPowerTool() {
-        const pageEl = document.querySelector('[data-page="power"]');
+    async loadTransformerTool() {
+        const pageEl = document.querySelector('[data-page="transformer"]');
         if (!pageEl) return;
 
-        pageEl.innerHTML = `
-            <div class="container" style="padding-top: var(--spacing-xl);">
-                <h1 class="section-title">功率换算工具</h1>
-                <p class="section-subtitle">电压、电流、电阻、功率之间的相互换算</p>
-
-                <div class="grid grid-2" style="gap: var(--spacing-xl);">
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">基本功率计算</h3>
-                        <div class="form-group">
-                            <label class="form-label">电压 (V)</label>
-                            <input type="number" id="power-vin" class="form-input" placeholder="输入电压" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">电流 (A)</label>
-                            <input type="number" id="power-iin" class="form-input" placeholder="输入电流" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">电阻 (Ω)</label>
-                            <input type="number" id="power-r" class="form-input" placeholder="输入电阻" step="0.01">
-                        </div>
-                        <button onclick="App.calculatePower()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
-                            计算
-                        </button>
-
-                        <div id="power-results" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">功率 (P)</span>
-                                    <span class="result-value" id="result-p">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="glass-card" style="padding: var(--spacing-xl);">
-                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: var(--spacing-lg);">欧姆定律</h3>
-                        <div style="background: var(--bg-secondary); border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg); text-align: center;">
-                            <p style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--accent-secondary);">P = V × I = I² × R = V² / R</p>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">选择要计算的值</label>
-                            <select id="power-calc-type" class="form-select">
-                                <option value="power">计算功率 (P)</option>
-                                <option value="voltage">计算电压 (V)</option>
-                                <option value="current">计算电流 (I)</option>
-                                <option value="resistance">计算电阻 (R)</option>
-                            </select>
-                        </div>
-                        <div id="power-inputs">
-                            <div class="form-group" id="input-voltage-group">
-                                <label class="form-label">电压 (V)</label>
-                                <input type="number" id="calc-voltage" class="form-input" placeholder="输入电压" step="0.01">
-                            </div>
-                            <div class="form-group" id="input-current-group">
-                                <label class="form-label">电流 (A)</label>
-                                <input type="number" id="calc-current" class="form-input" placeholder="输入电流" step="0.01">
-                            </div>
-                            <div class="form-group" id="input-resistance-group" style="display: none;">
-                                <label class="form-label">电阻 (Ω)</label>
-                                <input type="number" id="calc-resistance" class="form-input" placeholder="输入电阻" step="0.01">
-                            </div>
-                        </div>
-                        <button onclick="App.calculateOhmsLaw()" class="btn btn-primary" style="width: 100%; margin-top: var(--spacing-md);">
-                            计算
-                        </button>
-                        <div id="ohms-result" style="margin-top: var(--spacing-lg); display: none;">
-                            <div class="result-card">
-                                <div class="result-item">
-                                    <span class="result-label">计算结果</span>
-                                    <span class="result-value" id="ohms-result-value">-</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    },
-
-    calculatePower() {
-        const vin = parseFloat(document.getElementById('power-vin').value);
-        const iin = parseFloat(document.getElementById('power-iin').value);
-        const r = parseFloat(document.getElementById('power-r').value);
-
-        let power = 0;
-        if (vin && iin) {
-            power = vin * iin;
-        } else if (vin && r) {
-            power = (vin * vin) / r;
-        } else if (iin && r) {
-            power = iin * iin * r;
+        // 加载变压器模块的 CSS
+        let cssLink = document.querySelector('link[href="transformer/transformer.css"]');
+        if (!cssLink) {
+            cssLink = document.createElement('link');
+            cssLink.rel = 'stylesheet';
+            cssLink.href = 'transformer/transformer.css';
+            document.head.appendChild(cssLink);
         }
 
-        document.getElementById('result-p').textContent = power.toFixed(4) + ' W';
-        document.getElementById('power-results').style.display = 'block';
-    },
+        // 加载 HTML 内容
+        const htmlResponse = await fetch('transformer/transformer.html');
+        const htmlContent = await htmlResponse.text();
+        pageEl.innerHTML = htmlContent;
 
-    calculateOhmsLaw() {
-        const calcType = document.getElementById('power-calc-type').value;
-        const v = parseFloat(document.getElementById('calc-voltage').value);
-        const i = parseFloat(document.getElementById('calc-current').value);
-        const r = parseFloat(document.getElementById('calc-resistance').value);
+        // 加载磁芯数据库
+        const coredataScript = document.createElement('script');
+        coredataScript.src = 'transformer/coredata.js';
+        document.body.appendChild(coredataScript);
 
-        let result = 0;
-        let unit = '';
+        // 加载 AWG 线规数据库
+        const wiregaugeScript = document.createElement('script');
+        wiregaugeScript.src = 'transformer/wiregauge.js';
+        document.body.appendChild(wiregaugeScript);
 
-        switch (calcType) {
-            case 'power':
-                if (v && i) {
-                    result = v * i;
-                    unit = 'W';
-                } else if (v && r) {
-                    result = (v * v) / r;
-                    unit = 'W';
-                } else if (i && r) {
-                    result = i * i * r;
-                    unit = 'W';
-                }
-                break;
-            case 'voltage':
-                if (i && r) {
-                    result = i * r;
-                    unit = 'V';
-                } else if (i && document.getElementById('input-resistance-group').style.display !== 'none' && r) {
-                    result = i * r;
-                    unit = 'V';
-                } else if (document.getElementById('input-current-group').style.display !== 'none' && i) {
-                    result = i * r;
-                    unit = 'V';
-                }
-                break;
-            case 'current':
-                if (v && r) {
-                    result = v / r;
-                    unit = 'A';
-                } else if (v && document.getElementById('input-resistance-group').style.display !== 'none' && r) {
-                    result = v / r;
-                    unit = 'A';
-                }
-                break;
-            case 'resistance':
-                if (v && i) {
-                    result = v / i;
-                    unit = 'Ω';
-                } else if (v && document.getElementById('input-current-group').style.display !== 'none' && i) {
-                    result = v / i;
-                    unit = 'Ω';
-                }
-                break;
-        }
+        // 等待数据库加载完成后加载主 JS
+        await new Promise(resolve => {
+            wiregaugeScript.onload = resolve;
+        });
 
-        document.getElementById('ohms-result-value').textContent = result.toFixed(4) + ' ' + unit;
-        document.getElementById('ohms-result').style.display = 'block';
+        // 加载主 JS 模块
+        const script = document.createElement('script');
+        script.src = 'transformer/transformer.js';
+        document.body.appendChild(script);
+
+        // 初始化模块
+        setTimeout(() => {
+            if (typeof Transformer !== 'undefined' && Transformer.init) {
+                Transformer.init();
+            }
+        }, 100);
     },
 
     async loadArticlesTool() {
