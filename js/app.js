@@ -126,7 +126,7 @@ const App = {
                                 <li><a href="#home">首页</a></li>
                                 <li><a href="#topology">电路拓扑设计</a></li>
                                 <li><a href="#convert">单位换算</a></li>
-                                <li><a href="#articles">技术文章</a></li>
+                                <!-- <li><a href="#articles">技术文章</a></li> -->
                             </ul>
                         </div>
                         <div class="footer-col">
@@ -280,6 +280,7 @@ const App = {
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">P=U×I等功率相关计算</p>
                             </div>
                         </a>
+                        <!-- 技术文章模块暂时隐藏
                         <a href="#articles" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
                             <div style="width: 56px; height: 56px; background: rgba(245, 158, 11, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                                 <svg width="28" height="28" fill="var(--accent-warning)" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
@@ -289,6 +290,7 @@ const App = {
                                 <p style="color: var(--text-secondary); font-size: 0.875rem;">DC-DC转换器损耗分析</p>
                             </div>
                         </a>
+                        -->
                         <a href="#more" class="tool-card glass-card" style="display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-lg);">
                             <div style="width: 56px; height: 56px; background: rgba(148, 163, 184, 0.2); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
                                 <svg width="28" height="28" fill="var(--text-muted)" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
