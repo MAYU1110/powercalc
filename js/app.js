@@ -93,6 +93,12 @@ const App = {
 
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         pageEl.classList.add('active');
+
+        // 切换到变压器模块时，刷新拓扑图
+        if (pageName === 'transformer' && typeof Transformer !== 'undefined' && Transformer.renderTopologySchematic) {
+            const topoType = document.getElementById('topoType')?.value || 'flyback';
+            Transformer.renderTopologySchematic(topoType);
+        }
     },
 
     renderFooter() {
